@@ -40,6 +40,7 @@ export default function CharacterSetupPage() {
         maxHp: char.maxHp,
         armorClass: char.armorClass,
         notes: char.notes || "",
+        image: char.image || null,
       }
 
       const savedCharacter = await api.characters.create(characterData)

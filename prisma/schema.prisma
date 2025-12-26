@@ -37,6 +37,7 @@ model Character {
   maxHp       Int      @map("max_hp")
   armorClass  Int      @map("armor_class")
   notes       String?
+  image       String?
   conditions  String[] @default([])
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")

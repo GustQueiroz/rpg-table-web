@@ -20,6 +20,7 @@ export async function POST(request: Request) {
       maxHp,
       armorClass,
       notes,
+      image,
     } = body
 
     let actualRoomId = roomId
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
         maxHp,
         armorClass,
         notes: notes || "",
+        image: image || null,
         conditions: [],
       },
     })

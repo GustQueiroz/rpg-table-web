@@ -169,6 +169,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 maxHp: charData.maxHp,
                 armorClass: charData.armorClass,
                 notes: charData.notes,
+                image: charData.image,
                 conditions: charData.conditions || [],
                 createdAt: new Date(charData.createdAt),
                 updatedAt: new Date(charData.updatedAt),

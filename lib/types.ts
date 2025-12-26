@@ -27,6 +27,7 @@ export interface Character {
   maxHp: number
   armorClass: number
   notes?: string | null
+  image?: string | null
   conditions?: string[]
   createdAt?: Date
   updatedAt?: Date

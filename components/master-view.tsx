@@ -11,6 +11,8 @@ import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { CharacterImageUpload } from "@/components/character-image-upload"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useGame } from "@/lib/contexts/game-context"
 import type { Player, Character } from "@/lib/types"
 
@@ -54,6 +56,7 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             maxHp: charData.maxHp,
             armorClass: charData.armorClass,
             notes: charData.notes,
+            image: charData.image,
             conditions: charData.conditions || [],
             createdAt: new Date(charData.createdAt),
             updatedAt: new Date(charData.updatedAt),
@@ -253,13 +256,21 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                         onClick={() => setSelectedPlayer(player.id)}
                       >
                         <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <p className="font-bold text-lg">{player.name}</p>
-                            {player.character && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                {player.character.name} - {player.character.class || player.character.classe} - Nível {player.character.level}
-                              </p>
-                            )}
+                          <div className="flex items-center gap-3 flex-1">
+                            <Avatar className="h-10 w-10 border-2 border-border flex-shrink-0">
+                              <AvatarImage src={player.character?.image || undefined} alt={player.name} />
+                              <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-sm">
+                                {player.name.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-lg">{player.name}</p>
+                              {player.character && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {player.character.name} - {player.character.class || player.character.classe} - Nível {player.character.level}
+                                </p>
+                              )}
+                            </div>
                           </div>
                           {player.character && (
                             <div className="flex items-center gap-6">
@@ -295,7 +306,20 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             {selectedPlayerData?.character && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl font-bold">Controle: {selectedPlayerData.character.name}</CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-2xl font-bold">Controle: {selectedPlayerData.character.name}</CardTitle>
+                    <CharacterImageUpload
+                      characterId={selectedPlayerData.character.id}
+                      currentImage={selectedPlayerData.character.image}
+                      onImageUpdate={(image) => {
+                        const updated = { ...selectedPlayerData.character!, image }
+                        const updatedPlayers = players.map((p) =>
+                          p.id === selectedPlayerData.id ? { ...p, character: updated } : p
+                        )
+                        setPlayers(updatedPlayers)
+                      }}
+                    />
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">

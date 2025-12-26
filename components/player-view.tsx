@@ -10,7 +10,9 @@ import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
+import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { CharacterImageUpload } from "@/components/character-image-upload"
 import type { Character } from "@/lib/types"
 
 interface PlayerViewProps {
@@ -110,11 +112,47 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
       if (onRefresh) {
         await onRefresh()
       }
-      const players = storage.players.getByRoom(roomId)
-      const player = players.find((p) => p.id === playerId)
-      if (player?.character) {
-        setCharacter(player.character)
+      
+      try {
+        const charactersData = await api.characters.getByRoom(roomId)
+        if (charactersData && Array.isArray(charactersData)) {
+          const player = storage.players.getByRoom(roomId).find((p) => p.id === playerId)
+          const charData = charactersData.find((c: any) => c.playerName === player?.name)
+          if (charData) {
+            const updatedCharacter: Character = {
+              id: charData.id,
+              roomId: charData.roomId,
+              playerName: charData.playerName,
+              name: charData.name,
+              classe: charData.classe,
+              class: charData.classe,
+              level: charData.level,
+              attributes: {
+                strength: charData.strength,
+                dexterity: charData.dexterity,
+                constitution: charData.constitution,
+                intelligence: charData.intelligence,
+                wisdom: charData.wisdom,
+                charisma: charData.charisma,
+              },
+              currentHp: charData.currentHp,
+              maxHp: charData.maxHp,
+              armorClass: charData.armorClass,
+              notes: charData.notes,
+              image: charData.image,
+              conditions: charData.conditions || [],
+              createdAt: new Date(charData.createdAt),
+              updatedAt: new Date(charData.updatedAt),
+            }
+            setCharacter(updatedCharacter)
+            if (playerId) {
+              storage.players.update(playerId, { character: updatedCharacter })
+            }
+          }
+        }
+      } catch {
       }
+
       toast({
         title: "Atualizado com sucesso",
         description: "Os dados do personagem foram atualizados.",
@@ -175,7 +213,20 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           <div className="lg:col-span-2 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-2xl font-bold">Status</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl font-bold">Status</CardTitle>
+                  {character.id && (
+                    <CharacterImageUpload
+                      characterId={character.id}
+                      currentImage={character.image}
+                      onImageUpdate={(image) => {
+                        const updated = { ...character, image }
+                        setCharacter(updated)
+                        storage.players.update(playerId, { character: updated })
+                      }}
+                    />
+                  )}
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
@@ -287,6 +338,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           </div>
 
           <div className="space-y-4">
+            <PlayersList roomId={roomId} />
             <DiceRoller roomId={roomId} playerId={playerId} playerName={character.name} />
             <DiceHistory roomId={roomId} />
           </div>
