@@ -8,8 +8,10 @@ import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
+import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
-import type { Player } from "@/lib/types"
+import { useGame } from "@/lib/contexts/game-context"
+import type { Player, Character } from "@/lib/types"
 
 interface MasterViewProps {
   roomId: string
@@ -20,21 +22,68 @@ interface MasterViewProps {
 
 export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewProps) {
   const { toast } = useToast()
+  const { player } = useGame()
   const [room, setRoom] = useState(storage.rooms.getById(roomId))
   const [players, setPlayers] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  useEffect(() => {
-    const updateData = () => {
-      const currentRoom = storage.rooms.getById(roomId)
+  const fetchPlayersFromBackend = async () => {
+    try {
+      const charactersData = await api.characters.getByRoom(roomId)
+      if (charactersData && Array.isArray(charactersData)) {
+        const playersFromBackend: Player[] = charactersData.map((charData: any) => {
+          const character: Character = {
+            id: charData.id,
+            roomId: charData.roomId,
+            playerName: charData.playerName,
+            name: charData.name,
+            classe: charData.classe,
+            class: charData.classe,
+            level: charData.level,
+            attributes: {
+              strength: charData.strength,
+              dexterity: charData.dexterity,
+              constitution: charData.constitution,
+              intelligence: charData.intelligence,
+              wisdom: charData.wisdom,
+              charisma: charData.charisma,
+            },
+            currentHp: charData.currentHp,
+            maxHp: charData.maxHp,
+            armorClass: charData.armorClass,
+            notes: charData.notes,
+            conditions: charData.conditions || [],
+            createdAt: new Date(charData.createdAt),
+            updatedAt: new Date(charData.updatedAt),
+          }
+
+          return {
+            id: `player_${charData.id}`,
+            name: charData.playerName,
+            role: "player" as const,
+            roomId: roomId,
+            character,
+          }
+        })
+
+        setPlayers(playersFromBackend)
+      }
+    } catch {
       const currentPlayers = storage.players.getByRoom(roomId)
-      setRoom(currentRoom)
       setPlayers(currentPlayers)
+    }
+  }
+
+  useEffect(() => {
+    const updateData = async () => {
+      const currentRoom = storage.rooms.getById(roomId)
+      setRoom(currentRoom)
+      await fetchPlayersFromBackend()
     }
 
     updateData()
-    const interval = setInterval(updateData, 1000)
+    const interval = setInterval(updateData, 2000)
 
     return () => clearInterval(interval)
   }, [roomId])
@@ -46,14 +95,18 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     if (player?.character) {
       const newHp = Math.max(0, Math.min(player.character.maxHp, player.character.currentHp + amount))
       const updated = { ...player.character, currentHp: newHp }
-      storage.players.update(playerId, { character: updated })
-      setPlayers(storage.players.getByRoom(roomId))
+      
+      const updatedPlayers = players.map((p) => 
+        p.id === playerId ? { ...p, character: updated } : p
+      )
+      setPlayers(updatedPlayers)
 
       if (player.character.id) {
         try {
           await api.characters.update(player.character.id, {
             currentHp: newHp,
           })
+          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -65,14 +118,18 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     if (player?.character && condition.trim()) {
       const newConditions = [...(player.character.conditions || []), condition.trim()]
       const updated = { ...player.character, conditions: newConditions }
-      storage.players.update(playerId, { character: updated })
-      setPlayers(storage.players.getByRoom(roomId))
+      
+      const updatedPlayers = players.map((p) => 
+        p.id === playerId ? { ...p, character: updated } : p
+      )
+      setPlayers(updatedPlayers)
 
       if (player.character.id) {
         try {
           await api.characters.update(player.character.id, {
             conditions: newConditions,
           })
+          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -87,14 +144,18 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
         ...player.character,
         conditions: newConditions,
       }
-      storage.players.update(playerId, { character: updated })
-      setPlayers(storage.players.getByRoom(roomId))
+      
+      const updatedPlayers = players.map((p) => 
+        p.id === playerId ? { ...p, character: updated } : p
+      )
+      setPlayers(updatedPlayers)
 
       if (player.character.id) {
         try {
           await api.characters.update(player.character.id, {
             conditions: newConditions,
           })
+          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -113,9 +174,8 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
         await onRefresh()
       }
       const currentRoom = storage.rooms.getById(roomId)
-      const currentPlayers = storage.players.getByRoom(roomId)
       setRoom(currentRoom)
-      setPlayers(currentPlayers)
+      await fetchPlayersFromBackend()
       toast({
         title: "Atualizado com sucesso",
         description: "Os dados da sala foram atualizados.",
@@ -190,10 +250,10 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <p className="font-bold text-lg">{player.character?.name || player.name}</p>
+                            <p className="font-bold text-lg">{player.name}</p>
                             {player.character && (
                               <p className="text-sm text-muted-foreground mt-1">
-                                {player.character.race} {player.character.class} - Nível {player.character.level}
+                                {player.character.name} - {player.character.class || player.character.classe} - Nível {player.character.level}
                               </p>
                             )}
                           </div>
@@ -312,6 +372,11 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           </div>
 
           <div className="space-y-4">
+            <DiceRoller 
+              roomId={roomId} 
+              playerId={masterId} 
+              playerName={player?.name || "Mestre"} 
+            />
             <DiceHistory roomId={roomId} />
           </div>
         </div>
