@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  masterPassword String     @map("master_password")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  
+  characters    Character[]
+  diceRolls     DiceRoll[]
+
+  @@map("rooms")
+}
+
+model Character {
+  id          String   @id @default(cuid())
+  roomId      String   @map("room_id")
+  playerName  String   @map("player_name")
+  name        String
+  classe      String
+  level       Int
+  strength    Int
+  dexterity   Int
+  constitution Int
+  intelligence Int
+  wisdom      Int
+  charisma    Int
+  currentHp   Int      @map("current_hp")
+  maxHp       Int      @map("max_hp")
+  armorClass  Int      @map("armor_class")
+  notes       String?
+  conditions  String[] @default([])
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("characters")
+}
+
+model DiceRoll {
+  id          String   @id @default(cuid())
+  roomId      String   @map("room_id")
+  playerName  String   @map("player_name")
+  diceType    String   @map("dice_type")
+  result      Int
+  modifier    Int      @default(0)
+  total       Int
+  timestamp   DateTime @default(now())
+
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("dice_rolls")
+  @@index([roomId, timestamp])
+}
