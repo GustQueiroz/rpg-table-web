@@ -6,9 +6,26 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { roomId, playerName, diceType, result, modifier, total } = body
 
+    let actualRoomId = roomId
+
+    const room = await prisma.room.findUnique({
+      where: { code: roomId },
+    })
+
+    if (room) {
+      actualRoomId = room.id
+    } else {
+      const roomById = await prisma.room.findUnique({
+        where: { id: roomId },
+      })
+      if (!roomById) {
+        return NextResponse.json({ error: "Room not found" }, { status: 404 })
+      }
+    }
+
     const diceRoll = await prisma.diceRoll.create({
       data: {
-        roomId,
+        roomId: actualRoomId,
         playerName,
         diceType,
         result,
@@ -19,7 +36,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(diceRoll)
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create dice roll" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Failed to create dice roll",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
+      { status: 500 }
+    )
   }
 }
 
@@ -32,8 +55,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Room ID is required" }, { status: 400 })
     }
 
+    let actualRoomId = roomId
+
+    const room = await prisma.room.findUnique({
+      where: { code: roomId },
+    })
+
+    if (room) {
+      actualRoomId = room.id
+    }
+
     const diceRolls = await prisma.diceRoll.findMany({
-      where: { roomId },
+      where: { roomId: actualRoomId },
       orderBy: { timestamp: "desc" },
       take: 50,
     })

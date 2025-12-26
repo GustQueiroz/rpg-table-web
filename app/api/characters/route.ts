@@ -22,9 +22,26 @@ export async function POST(request: Request) {
       notes,
     } = body
 
+    let actualRoomId = roomId
+
+    const room = await prisma.room.findUnique({
+      where: { code: roomId },
+    })
+
+    if (room) {
+      actualRoomId = room.id
+    } else {
+      const roomById = await prisma.room.findUnique({
+        where: { id: roomId },
+      })
+      if (!roomById) {
+        return NextResponse.json({ error: "Room not found" }, { status: 404 })
+      }
+    }
+
     const character = await prisma.character.create({
       data: {
-        roomId,
+        roomId: actualRoomId,
         playerName,
         name,
         classe,
@@ -45,7 +62,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json(character)
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create character" }, { status: 500 })
+    return NextResponse.json(
+      { 
+        error: "Failed to create character",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
+      { status: 500 }
+    )
   }
 }
 
@@ -74,8 +97,18 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Room ID is required" }, { status: 400 })
     }
 
+    let actualRoomId = roomId
+
+    const room = await prisma.room.findUnique({
+      where: { code: roomId },
+    })
+
+    if (room) {
+      actualRoomId = room.id
+    }
+
     const characters = await prisma.character.findMany({
-      where: { roomId },
+      where: { roomId: actualRoomId },
       orderBy: { createdAt: "asc" },
     })
 
