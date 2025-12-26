@@ -10,6 +10,7 @@ import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useGame } from "@/lib/contexts/game-context"
 import type { Player, Character } from "@/lib/types"
 
@@ -206,23 +207,26 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
               <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
               <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
             </div>
-            <div className="flex flex-col gap-2">
-              {onRefresh && (
-                <Button 
-                  onClick={handleRefresh} 
-                  variant="outline" 
-                  size="sm" 
-                  className="font-semibold"
-                  disabled={isRefreshing}
-                >
-                  {isRefreshing ? "Atualizando..." : "Atualizar"}
-                </Button>
-              )}
-              {onLeave && (
-                <Button onClick={onLeave} variant="destructive" size="sm" className="font-semibold">
-                  Sair da Sala
-                </Button>
-              )}
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <div className="flex flex-col gap-2">
+                {onRefresh && (
+                  <Button 
+                    onClick={handleRefresh} 
+                    variant="outline" 
+                    size="sm" 
+                    className="font-semibold"
+                    disabled={isRefreshing}
+                  >
+                    {isRefreshing ? "Atualizando..." : "Atualizar"}
+                  </Button>
+                )}
+                {onLeave && (
+                  <Button onClick={onLeave} variant="destructive" size="sm" className="font-semibold">
+                    Sair da Sala
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>

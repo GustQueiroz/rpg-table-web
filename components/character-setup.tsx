@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeToggle } from "@/components/theme-toggle"
 import type { Character } from "@/lib/types"
 
 interface CharacterSetupProps {
@@ -59,6 +60,9 @@ export function CharacterSetup({ onComplete, characterId, isSaving = false }: Ch
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-3xl relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        <div className="absolute top-4 right-4 z-10">
+          <ThemeToggle />
+        </div>
         <CardHeader className="relative">
           <CardTitle className="text-3xl font-bold">Criar Personagem</CardTitle>
           <CardDescription className="text-base">Preencha as informações do seu personagem</CardDescription>

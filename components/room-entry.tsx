@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { api } from "@/lib/api.client"
 
 interface RoomEntryProps {
@@ -88,6 +89,9 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          <div className="absolute top-4 right-4 z-10">
+            <ThemeToggle />
+          </div>
           <CardHeader className="relative">
             <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
               Gerenciador de Sessão D&D
@@ -114,6 +118,9 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
         <Card className="w-full max-w-md relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          <div className="absolute top-4 right-4 z-10">
+            <ThemeToggle />
+          </div>
           <CardHeader className="relative">
             <CardTitle className="text-2xl font-bold">Criar Nova Sala</CardTitle>
             <CardDescription>Configure sua sessão de D&D</CardDescription>
@@ -149,6 +156,9 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <Card className="w-full max-w-md relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        <div className="absolute top-4 right-4 z-10">
+          <ThemeToggle />
+        </div>
         <CardHeader className="relative">
           <CardTitle className="text-2xl font-bold">Entrar em uma Sala</CardTitle>
           <CardDescription>Entre como jogador ou mestre</CardDescription>

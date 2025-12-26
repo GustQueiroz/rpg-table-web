@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { GameProvider } from '@/lib/contexts/game-context'
+import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
 import './globals.css'
 
@@ -36,11 +37,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`font-sans antialiased`}>
-        <GameProvider>
-          {children}
-        </GameProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <GameProvider>
+            {children}
+          </GameProvider>
+        </ThemeProvider>
         <Toaster />
         <Analytics />
       </body>
