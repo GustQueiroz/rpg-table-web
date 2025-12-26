@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { api } from "@/lib/api-client"
+import { api } from "@/lib/api.client"
 
 interface RoomEntryProps {
   onEnterRoom: (roomCode: string, playerName: string, isMaster: boolean) => void
