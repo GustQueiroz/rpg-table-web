@@ -2,24 +2,34 @@ export type PlayerRole = "master" | "player"
 
 export interface Character {
   id: string
-  roomId: string
-  playerName: string
+  roomId?: string
+  playerName?: string
   name: string
-  classe: string
+  race?: string
+  class?: string
+  classe?: string
   level: number
-  strength: number
-  dexterity: number
-  constitution: number
-  intelligence: number
-  wisdom: number
-  charisma: number
+  strength?: number
+  dexterity?: number
+  constitution?: number
+  intelligence?: number
+  wisdom?: number
+  charisma?: number
+  attributes?: {
+    strength: number
+    dexterity: number
+    constitution: number
+    intelligence: number
+    wisdom: number
+    charisma: number
+  }
   currentHp: number
   maxHp: number
   armorClass: number
-  notes: string | null
-  conditions: string[]
-  createdAt: Date
-  updatedAt: Date
+  notes?: string | null
+  conditions?: string[]
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export interface Player {

@@ -31,27 +31,27 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Histórico de Rolagens</CardTitle>
+        <CardTitle className="text-2xl font-bold">Histórico de Rolagens</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3 max-h-96 overflow-y-auto">
           {rolls.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-4">Nenhuma rolagem ainda</p>
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma rolagem ainda</p>
           ) : (
             rolls.map((roll) => (
-              <div key={roll.id} className="border-b pb-3 last:border-b-0">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">{roll.playerName}</p>
-                    {roll.description && <p className="text-xs text-muted-foreground">{roll.description}</p>}
-                    <p className="text-xs text-muted-foreground mt-1">
+              <div key={roll.id} className="border-2 border-border/40 rounded-lg p-3 bg-muted/20 hover:bg-muted/40 transition-colors">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm">{roll.playerName}</p>
+                    {roll.description && <p className="text-xs text-muted-foreground mt-1">{roll.description}</p>}
+                    <p className="text-xs text-muted-foreground mt-1 font-mono">
                       {roll.type}: [{roll.rolls.join(", ")}]
                       {roll.modifier !== 0 && ` ${roll.modifier > 0 ? "+" : ""}${roll.modifier}`}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold">{roll.result}</p>
-                    <p className="text-xs text-muted-foreground">{formatTime(roll.timestamp)}</p>
+                  <div className="text-right flex-shrink-0">
+                    <p className="text-2xl font-bold text-primary">{roll.result}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{formatTime(roll.timestamp)}</p>
                   </div>
                 </div>
               </div>

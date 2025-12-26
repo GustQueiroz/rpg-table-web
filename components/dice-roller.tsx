@@ -50,17 +50,17 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Rolagem de Dados</CardTitle>
+        <CardTitle className="text-2xl font-bold">Rolagem de Dados</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {lastRoll !== null && (
-          <div className="p-6 bg-primary text-primary-foreground rounded-lg text-center">
-            <p className="text-5xl font-bold">{lastRoll}</p>
+          <div className="p-8 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-lg text-center border-2 border-primary/30 shadow-lg">
+            <p className="text-6xl font-bold">{lastRoll}</p>
           </div>
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="modifier">Modificador</Label>
+          <Label htmlFor="modifier" className="font-semibold">Modificador</Label>
           <Input
             id="modifier"
             type="number"
@@ -71,7 +71,7 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="description">Descrição (opcional)</Label>
+          <Label htmlFor="description" className="font-semibold">Descrição (opcional)</Label>
           <Input
             id="description"
             value={description}
@@ -81,33 +81,33 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => rollDice(20)} variant="outline">
+          <Button onClick={() => rollDice(20)} variant="outline" className="font-bold text-lg">
             d20
           </Button>
-          <Button onClick={() => rollDice(12)} variant="outline">
+          <Button onClick={() => rollDice(12)} variant="outline" className="font-bold text-lg">
             d12
           </Button>
-          <Button onClick={() => rollDice(10)} variant="outline">
+          <Button onClick={() => rollDice(10)} variant="outline" className="font-bold text-lg">
             d10
           </Button>
-          <Button onClick={() => rollDice(8)} variant="outline">
+          <Button onClick={() => rollDice(8)} variant="outline" className="font-bold text-lg">
             d8
           </Button>
-          <Button onClick={() => rollDice(6)} variant="outline">
+          <Button onClick={() => rollDice(6)} variant="outline" className="font-bold text-lg">
             d6
           </Button>
-          <Button onClick={() => rollDice(4)} variant="outline">
+          <Button onClick={() => rollDice(4)} variant="outline" className="font-bold text-lg">
             d4
           </Button>
         </div>
 
-        <div className="pt-2 border-t">
-          <p className="text-xs text-muted-foreground mb-2">Rolagens Múltiplas</p>
+        <div className="pt-4 border-t-2 border-border/40">
+          <p className="text-sm font-semibold text-muted-foreground mb-3">Rolagens Múltiplas</p>
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={() => rollDice(6, 2)} variant="outline" size="sm">
+            <Button onClick={() => rollDice(6, 2)} variant="outline" size="sm" className="font-bold">
               2d6
             </Button>
-            <Button onClick={() => rollDice(8, 2)} variant="outline" size="sm">
+            <Button onClick={() => rollDice(8, 2)} variant="outline" size="sm" className="font-bold">
               2d8
             </Button>
           </div>

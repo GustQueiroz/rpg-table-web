@@ -14,9 +14,11 @@ interface PlayerViewProps {
   roomId: string
   playerId: string
   character: Character
+  onLeave?: () => void
+  onRefresh?: () => Promise<void>
 }
 
-export function PlayerView({ roomId, playerId, character: initialCharacter }: PlayerViewProps) {
+export function PlayerView({ roomId, playerId, character: initialCharacter, onLeave, onRefresh }: PlayerViewProps) {
   const [character, setCharacter] = useState(initialCharacter)
   const [tempHp, setTempHp] = useState("")
   const [newCondition, setNewCondition] = useState("")
@@ -68,19 +70,46 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
     storage.players.update(playerId, { character: updated })
   }
 
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      await onRefresh()
+    }
+    const players = storage.players.getByRoom(roomId)
+    const player = players.find((p) => p.id === playerId)
+    if (player?.character) {
+      setCharacter(player.character)
+    }
+  }
+
   return (
     <div className="min-h-screen p-4 bg-background">
-      <div className="max-w-7xl mx-auto space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between p-6 bg-card rounded-lg border-2 border-border/60 shadow-lg">
           <div>
-            <h1 className="text-3xl font-bold">{character.name}</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              {character.name}
+            </h1>
+            <p className="text-muted-foreground mt-1 text-lg">
               {character.race} {character.class} - Nível {character.level}
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Código da Sala</p>
-            <p className="text-lg font-mono font-semibold">{roomId}</p>
+          <div className="flex items-center gap-4">
+            <div className="text-right p-4 bg-muted/50 rounded-lg border border-border/40">
+              <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
+              <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {onRefresh && (
+                <Button onClick={handleRefresh} variant="outline" size="sm" className="font-semibold">
+                  Atualizar
+                </Button>
+              )}
+              {onLeave && (
+                <Button onClick={onLeave} variant="destructive" size="sm" className="font-semibold">
+                  Sair da Sala
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -88,20 +117,22 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
           <div className="lg:col-span-2 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Status</CardTitle>
+                <CardTitle className="text-2xl font-bold">Status</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Pontos de Vida</p>
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
+                    <p className="text-base font-bold text-muted-foreground">Pontos de Vida</p>
                     <div className="flex items-center gap-2">
-                      <Button onClick={() => updateHp(-1)} variant="outline" size="sm">
+                      <Button onClick={() => updateHp(-1)} variant="outline" size="sm" className="font-bold">
                         -
                       </Button>
-                      <p className="text-3xl font-bold flex-1 text-center">
-                        {character.currentHp}/{character.maxHp}
-                      </p>
-                      <Button onClick={() => updateHp(1)} variant="outline" size="sm">
+                      <div className="flex-1 text-center p-4 bg-background rounded-lg border-2 border-primary/20">
+                        <p className="text-3xl font-bold">
+                          {character.currentHp}/{character.maxHp}
+                        </p>
+                      </div>
+                      <Button onClick={() => updateHp(1)} variant="outline" size="sm" className="font-bold">
                         +
                       </Button>
                     </div>
@@ -113,14 +144,14 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
                         onChange={(e) => setTempHp(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && applyTempHp()}
                       />
-                      <Button onClick={applyTempHp} size="sm">
+                      <Button onClick={applyTempHp} size="sm" className="font-semibold">
                         Aplicar
                       </Button>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">Classe de Armadura</p>
-                    <p className="text-5xl font-bold text-center">{character.armorClass}</p>
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40 flex flex-col items-center justify-center">
+                    <p className="text-base font-bold text-muted-foreground">Classe de Armadura</p>
+                    <p className="text-6xl font-bold">{character.armorClass}</p>
                   </div>
                 </div>
               </CardContent>
@@ -128,7 +159,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
 
             <Card>
               <CardHeader>
-                <CardTitle>Atributos</CardTitle>
+                <CardTitle className="text-2xl font-bold">Atributos</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
@@ -140,10 +171,10 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
                     { name: "SAB", value: character.attributes.wisdom },
                     { name: "CAR", value: character.attributes.charisma },
                   ].map((attr) => (
-                    <div key={attr.name} className="text-center space-y-1">
-                      <p className="text-xs text-muted-foreground font-semibold">{attr.name}</p>
+                    <div key={attr.name} className="text-center p-3 border-2 border-border/60 rounded-lg bg-muted/30 hover:border-primary/40 transition-colors">
+                      <p className="text-xs text-muted-foreground font-bold mb-2">{attr.name}</p>
                       <p className="text-2xl font-bold">{attr.value}</p>
-                      <p className="text-sm text-muted-foreground">{calculateModifier(attr.value)}</p>
+                      <p className="text-sm font-semibold text-primary mt-1">{calculateModifier(attr.value)}</p>
                     </div>
                   ))}
                 </div>
@@ -152,9 +183,9 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
 
             <Card>
               <CardHeader>
-                <CardTitle>Condições</CardTitle>
+                <CardTitle className="text-2xl font-bold">Condições</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-4">
                 <div className="flex flex-wrap gap-2">
                   {character.conditions.length === 0 ? (
                     <p className="text-sm text-muted-foreground">Nenhuma condição ativa</p>
@@ -163,7 +194,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
                       <Badge
                         key={index}
                         variant="secondary"
-                        className="cursor-pointer"
+                        className="cursor-pointer font-semibold hover:bg-destructive/20 transition-colors"
                         onClick={() => removeCondition(index)}
                       >
                         {condition} ×
@@ -178,7 +209,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
                     onChange={(e) => setNewCondition(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addCondition()}
                   />
-                  <Button onClick={addCondition} size="sm">
+                  <Button onClick={addCondition} size="sm" className="font-semibold">
                     Adicionar
                   </Button>
                 </div>
@@ -188,10 +219,10 @@ export function PlayerView({ roomId, playerId, character: initialCharacter }: Pl
             {character.notes && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Anotações</CardTitle>
+                  <CardTitle className="text-2xl font-bold">Anotações</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap text-sm">{character.notes}</p>
+                  <p className="whitespace-pre-wrap text-sm p-4 bg-muted/30 rounded-lg border border-border/40">{character.notes}</p>
                 </CardContent>
               </Card>
             )}

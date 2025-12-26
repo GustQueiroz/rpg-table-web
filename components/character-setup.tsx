@@ -56,15 +56,16 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-3xl">
-        <CardHeader>
-          <CardTitle>Criar Personagem</CardTitle>
-          <CardDescription>Preencha as informações do seu personagem</CardDescription>
+      <Card className="w-full max-w-3xl relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        <CardHeader className="relative">
+          <CardTitle className="text-3xl font-bold">Criar Personagem</CardTitle>
+          <CardDescription className="text-base">Preencha as informações do seu personagem</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 relative">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="char-name">Nome</Label>
+              <Label htmlFor="char-name" className="font-semibold">Nome</Label>
               <Input
                 id="char-name"
                 placeholder="Nome do personagem"
@@ -73,7 +74,7 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="race">Raça</Label>
+              <Label htmlFor="race" className="font-semibold">Raça</Label>
               <Input
                 id="race"
                 placeholder="Humano, Elfo, etc."
@@ -82,7 +83,7 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="class">Classe</Label>
+              <Label htmlFor="class" className="font-semibold">Classe</Label>
               <Input
                 id="class"
                 placeholder="Guerreiro, Mago, etc."
@@ -94,7 +95,7 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="level">Nível</Label>
+              <Label htmlFor="level" className="font-semibold">Nível</Label>
               <Input
                 id="level"
                 type="number"
@@ -105,7 +106,7 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="max-hp">PV Máximo</Label>
+              <Label htmlFor="max-hp" className="font-semibold">PV Máximo</Label>
               <Input
                 id="max-hp"
                 type="number"
@@ -115,7 +116,7 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ac">Classe de Armadura</Label>
+              <Label htmlFor="ac" className="font-semibold">Classe de Armadura</Label>
               <Input
                 id="ac"
                 type="number"
@@ -126,8 +127,8 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
             </div>
           </div>
 
-          <div>
-            <Label className="mb-3 block">Atributos</Label>
+          <div className="pt-4 border-t-2 border-border/40">
+            <Label className="mb-4 block text-lg font-bold">Atributos</Label>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="str" className="text-sm text-muted-foreground">
@@ -210,18 +211,19 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Anotações</Label>
+          <div className="space-y-2 pt-4 border-t-2 border-border/40">
+            <Label htmlFor="notes" className="font-semibold">Anotações</Label>
             <Textarea
               id="notes"
               placeholder="Habilidades, equipamentos, história..."
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
+              className="resize-none"
             />
           </div>
 
-          <Button onClick={handleSubmit} disabled={!isValid} className="w-full" size="lg">
+          <Button onClick={handleSubmit} disabled={!isValid} className="w-full font-semibold" size="lg">
             Criar Personagem
           </Button>
         </CardContent>

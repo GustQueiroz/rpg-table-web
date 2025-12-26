@@ -86,16 +86,21 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
   if (mode === null) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Gerenciador de Sessão D&D</CardTitle>
-            <CardDescription>Escolha como deseja entrar</CardDescription>
+        <Card className="w-full max-w-md relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          <CardHeader className="relative">
+            <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+              Gerenciador de Sessão D&D
+            </CardTitle>
+            <CardDescription className="text-center text-base mt-2">
+              Escolha como deseja entrar
+            </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-3">
-            <Button onClick={() => setMode("entry")} size="lg">
+          <CardContent className="flex flex-col gap-4 relative">
+            <Button onClick={() => setMode("entry")} size="lg" className="w-full font-semibold">
               Entrar em uma Sala
             </Button>
-            <Button onClick={() => setMode("create")} variant="outline" size="lg">
+            <Button onClick={() => setMode("create")} variant="outline" size="lg" className="w-full font-semibold">
               Criar Nova Sala
             </Button>
           </CardContent>
@@ -107,23 +112,25 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
   if (mode === "create") {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Criar Nova Sala</CardTitle>
+        <Card className="w-full max-w-md relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+          <CardHeader className="relative">
+            <CardTitle className="text-2xl font-bold">Criar Nova Sala</CardTitle>
             <CardDescription>Configure sua sessão de D&D</CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 relative">
             <div className="space-y-2">
-              <Label htmlFor="master-password">Senha do Mestre</Label>
+              <Label htmlFor="master-password" className="font-semibold">Senha do Mestre</Label>
               <Input
                 id="master-password"
                 type="password"
                 placeholder="Digite uma senha secreta"
                 value={newMasterPassword}
                 onChange={(e) => setNewMasterPassword(e.target.value)}
+                className="font-mono"
               />
             </div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && <p className="text-sm text-destructive font-medium p-2 bg-destructive/10 rounded-md border border-destructive/20">{error}</p>}
             <div className="flex gap-2">
               <Button onClick={() => setMode(null)} variant="outline" className="flex-1" disabled={loading}>
                 Voltar
@@ -140,26 +147,28 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Entrar em uma Sala</CardTitle>
+      <Card className="w-full max-w-md relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        <CardHeader className="relative">
+          <CardTitle className="text-2xl font-bold">Entrar em uma Sala</CardTitle>
           <CardDescription>Entre como jogador ou mestre</CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-col gap-4">
+        <CardContent className="flex flex-col gap-4 relative">
           <div className="space-y-2">
-            <Label htmlFor="room-code">Código da Sala</Label>
+            <Label htmlFor="room-code" className="font-semibold">Código da Sala</Label>
             <Input
               id="room-code"
               placeholder="ABC123"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
               maxLength={6}
+              className="font-mono text-lg tracking-wider text-center"
             />
           </div>
 
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-4 border-t-2 border-border/40">
             <div className="space-y-2">
-              <Label htmlFor="player-name">Nome do Jogador</Label>
+              <Label htmlFor="player-name" className="font-semibold">Nome do Jogador</Label>
               <Input
                 id="player-name"
                 placeholder="Seu nome"
@@ -172,23 +181,24 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
             </Button>
           </div>
 
-          <div className="space-y-4 pt-4 border-t">
+          <div className="space-y-4 pt-4 border-t-2 border-border/40">
             <div className="space-y-2">
-              <Label htmlFor="master-pass">Senha do Mestre</Label>
+              <Label htmlFor="master-pass" className="font-semibold">Senha do Mestre</Label>
               <Input
                 id="master-pass"
                 type="password"
                 placeholder="Senha do mestre"
                 value={masterPassword}
                 onChange={(e) => setMasterPassword(e.target.value)}
+                className="font-mono"
               />
             </div>
-            <Button onClick={handleJoinAsMaster} variant="outline" className="w-full bg-transparent" disabled={loading}>
+            <Button onClick={handleJoinAsMaster} variant="outline" className="w-full" disabled={loading}>
               {loading ? "Verificando..." : "Entrar como Mestre"}
             </Button>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-sm text-destructive font-medium p-2 bg-destructive/10 rounded-md border border-destructive/20">{error}</p>}
 
           <Button onClick={() => setMode(null)} variant="ghost" className="w-full mt-2">
             Voltar

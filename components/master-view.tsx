@@ -12,9 +12,11 @@ import type { Player } from "@/lib/types"
 interface MasterViewProps {
   roomId: string
   masterId: string
+  onLeave?: () => void
+  onRefresh?: () => Promise<void>
 }
 
-export function MasterView({ roomId, masterId }: MasterViewProps) {
+export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewProps) {
   const [room, setRoom] = useState(storage.rooms.getById(roomId))
   const [players, setPlayers] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
@@ -68,17 +70,43 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
     return mod >= 0 ? `+${mod}` : `${mod}`
   }
 
+  const handleRefresh = async () => {
+    if (onRefresh) {
+      await onRefresh()
+    }
+    const currentRoom = storage.rooms.getById(roomId)
+    const currentPlayers = storage.players.getByRoom(roomId)
+    setRoom(currentRoom)
+    setPlayers(currentPlayers)
+  }
+
   return (
     <div className="min-h-screen p-4 bg-background">
-      <div className="max-w-7xl mx-auto space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between p-6 bg-card rounded-lg border-2 border-border/60 shadow-lg">
           <div>
-            <h1 className="text-3xl font-bold">Painel do Mestre</h1>
-            <p className="text-muted-foreground">{room?.name}</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Painel do Mestre
+            </h1>
+            <p className="text-muted-foreground mt-1">{room?.name}</p>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Código da Sala</p>
-            <p className="text-lg font-mono font-semibold">{roomId}</p>
+          <div className="flex items-center gap-4">
+            <div className="text-right p-4 bg-muted/50 rounded-lg border border-border/40">
+              <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
+              <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {onRefresh && (
+                <Button onClick={handleRefresh} variant="outline" size="sm" className="font-semibold">
+                  Atualizar
+                </Button>
+              )}
+              {onLeave && (
+                <Button onClick={onLeave} variant="destructive" size="sm" className="font-semibold">
+                  Sair da Sala
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -86,41 +114,43 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
           <div className="lg:col-span-2 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Jogadores ({players.length})</CardTitle>
+                <CardTitle className="text-2xl font-bold">Jogadores ({players.length})</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {players.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">Nenhum jogador conectado</p>
+                    <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogador conectado</p>
                   ) : (
                     players.map((player) => (
                       <div
                         key={player.id}
-                        className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                          selectedPlayer === player.id ? "border-primary bg-accent" : "hover:bg-accent"
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          selectedPlayer === player.id 
+                            ? "border-primary bg-primary/10 shadow-md scale-[1.02]" 
+                            : "border-border/60 hover:bg-accent/50 hover:border-border hover:shadow-sm"
                         }`}
                         onClick={() => setSelectedPlayer(player.id)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
-                            <p className="font-semibold">{player.character?.name || player.name}</p>
+                            <p className="font-bold text-lg">{player.character?.name || player.name}</p>
                             {player.character && (
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-sm text-muted-foreground mt-1">
                                 {player.character.race} {player.character.class} - Nível {player.character.level}
                               </p>
                             )}
                           </div>
                           {player.character && (
-                            <div className="flex items-center gap-4">
-                              <div className="text-center">
-                                <p className="text-xs text-muted-foreground">PV</p>
-                                <p className="font-bold">
+                            <div className="flex items-center gap-6">
+                              <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[60px]">
+                                <p className="text-xs text-muted-foreground font-semibold mb-1">PV</p>
+                                <p className="font-bold text-lg">
                                   {player.character.currentHp}/{player.character.maxHp}
                                 </p>
                               </div>
-                              <div className="text-center">
-                                <p className="text-xs text-muted-foreground">CA</p>
-                                <p className="font-bold">{player.character.armorClass}</p>
+                              <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[50px]">
+                                <p className="text-xs text-muted-foreground font-semibold mb-1">CA</p>
+                                <p className="font-bold text-lg">{player.character.armorClass}</p>
                               </div>
                             </div>
                           )}
@@ -144,33 +174,35 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
             {selectedPlayerData?.character && (
               <Card>
                 <CardHeader>
-                  <CardTitle>Controle: {selectedPlayerData.character.name}</CardTitle>
+                  <CardTitle className="text-2xl font-bold">Controle: {selectedPlayerData.character.name}</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold">Pontos de Vida</p>
+                <CardContent className="space-y-6">
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
+                    <p className="text-base font-bold">Pontos de Vida</p>
                     <div className="flex items-center gap-2">
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -5)} variant="outline" size="sm">
+                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -5)} variant="outline" size="sm" className="font-bold">
                         -5
                       </Button>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -1)} variant="outline" size="sm">
+                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -1)} variant="outline" size="sm" className="font-bold">
                         -1
                       </Button>
-                      <p className="text-2xl font-bold flex-1 text-center">
-                        {selectedPlayerData.character.currentHp}/{selectedPlayerData.character.maxHp}
-                      </p>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 1)} variant="outline" size="sm">
+                      <div className="flex-1 text-center p-4 bg-background rounded-lg border-2 border-primary/20">
+                        <p className="text-3xl font-bold">
+                          {selectedPlayerData.character.currentHp}/{selectedPlayerData.character.maxHp}
+                        </p>
+                      </div>
+                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 1)} variant="outline" size="sm" className="font-bold">
                         +1
                       </Button>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 5)} variant="outline" size="sm">
+                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 5)} variant="outline" size="sm" className="font-bold">
                         +5
                       </Button>
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold">Atributos</p>
-                    <div className="grid grid-cols-6 gap-2">
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
+                    <p className="text-base font-bold">Atributos</p>
+                    <div className="grid grid-cols-6 gap-3">
                       {[
                         { name: "FOR", value: selectedPlayerData.character.attributes.strength },
                         { name: "DES", value: selectedPlayerData.character.attributes.dexterity },
@@ -179,17 +211,17 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
                         { name: "SAB", value: selectedPlayerData.character.attributes.wisdom },
                         { name: "CAR", value: selectedPlayerData.character.attributes.charisma },
                       ].map((attr) => (
-                        <div key={attr.name} className="text-center p-2 border rounded">
-                          <p className="text-xs font-semibold text-muted-foreground">{attr.name}</p>
-                          <p className="text-lg font-bold">{attr.value}</p>
-                          <p className="text-xs text-muted-foreground">{calculateModifier(attr.value)}</p>
+                        <div key={attr.name} className="text-center p-3 border-2 border-border/60 rounded-lg bg-background hover:border-primary/40 transition-colors">
+                          <p className="text-xs font-bold text-muted-foreground mb-1">{attr.name}</p>
+                          <p className="text-xl font-bold">{attr.value}</p>
+                          <p className="text-sm font-semibold text-primary mt-1">{calculateModifier(attr.value)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-2">
-                    <p className="text-sm font-semibold">Condições</p>
+                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
+                    <p className="text-base font-bold">Condições</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedPlayerData.character.conditions.length === 0 ? (
                         <p className="text-sm text-muted-foreground">Nenhuma condição</p>
@@ -198,7 +230,7 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
                           <Badge
                             key={idx}
                             variant="secondary"
-                            className="cursor-pointer"
+                            className="cursor-pointer font-semibold hover:bg-destructive/20 transition-colors"
                             onClick={() => removeConditionFromPlayer(selectedPlayerData.id, idx)}
                           >
                             {condition} ×
@@ -210,9 +242,9 @@ export function MasterView({ roomId, masterId }: MasterViewProps) {
                   </div>
 
                   {selectedPlayerData.character.notes && (
-                    <div className="space-y-2">
-                      <p className="text-sm font-semibold">Anotações</p>
-                      <p className="text-sm whitespace-pre-wrap p-3 bg-muted rounded-lg">
+                    <div className="space-y-2 p-4 bg-muted/30 rounded-lg border border-border/40">
+                      <p className="text-base font-bold">Anotações</p>
+                      <p className="text-sm whitespace-pre-wrap p-4 bg-background rounded-lg border border-border/40">
                         {selectedPlayerData.character.notes}
                       </p>
                     </div>
@@ -253,10 +285,10 @@ function QuickConditions({ onAdd }: { onAdd: (condition: string) => void }) {
   }
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1">
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
         {commonConditions.map((condition) => (
-          <Button key={condition} variant="outline" size="sm" onClick={() => onAdd(condition)}>
+          <Button key={condition} variant="outline" size="sm" onClick={() => onAdd(condition)} className="font-semibold">
             {condition}
           </Button>
         ))}
@@ -267,9 +299,8 @@ function QuickConditions({ onAdd }: { onAdd: (condition: string) => void }) {
           value={custom}
           onChange={(e) => setCustom(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleCustom()}
-          size={1}
         />
-        <Button onClick={handleCustom} size="sm">
+        <Button onClick={handleCustom} size="sm" className="font-semibold">
           Adicionar
         </Button>
       </div>
