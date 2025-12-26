@@ -11,9 +11,10 @@ import type { Character } from "@/lib/types"
 interface CharacterSetupProps {
   onComplete: (character: Character) => void
   characterId: string
+  isSaving?: boolean
 }
 
-export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps) {
+export function CharacterSetup({ onComplete, characterId, isSaving = false }: CharacterSetupProps) {
   const [name, setName] = useState("")
   const [race, setRace] = useState("")
   const [charClass, setCharClass] = useState("")
@@ -223,8 +224,8 @@ export function CharacterSetup({ onComplete, characterId }: CharacterSetupProps)
             />
           </div>
 
-          <Button onClick={handleSubmit} disabled={!isValid} className="w-full font-semibold" size="lg">
-            Criar Personagem
+          <Button onClick={handleSubmit} disabled={!isValid || isSaving} className="w-full font-semibold" size="lg">
+            {isSaving ? "Salvando..." : "Criar Personagem"}
           </Button>
         </CardContent>
       </Card>

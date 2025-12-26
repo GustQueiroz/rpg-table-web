@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useToast } from "@/hooks/use-toast"
 import { storage } from "@/lib/storage"
+import { api } from "@/lib/api.client"
 import { generateId } from "@/lib/utils/id-generator"
 import type { DiceRoll } from "@/lib/types"
 
@@ -16,35 +18,58 @@ interface DiceRollerProps {
 }
 
 export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
+  const { toast } = useToast()
   const [modifier, setModifier] = useState(0)
   const [description, setDescription] = useState("")
   const [lastRoll, setLastRoll] = useState<number | null>(null)
+  const [isRolling, setIsRolling] = useState(false)
 
-  const rollDice = (sides: number, count = 1) => {
-    const rolls: number[] = []
-    for (let i = 0; i < count; i++) {
-      rolls.push(Math.floor(Math.random() * sides) + 1)
+  const rollDice = async (sides: number, count = 1) => {
+    setIsRolling(true)
+    try {
+      const rolls: number[] = []
+      for (let i = 0; i < count; i++) {
+        rolls.push(Math.floor(Math.random() * sides) + 1)
+      }
+      const sum = rolls.reduce((a, b) => a + b, 0)
+      const total = sum + modifier
+
+      const diceType = `${count}d${sides}${modifier !== 0 ? (modifier > 0 ? `+${modifier}` : modifier) : ""}`
+
+      await api.diceRolls.create({
+        roomId,
+        playerName,
+        diceType,
+        result: sum,
+        modifier,
+        total,
+      })
+
+      const roll: DiceRoll = {
+        id: generateId(),
+        roomId,
+        playerName,
+        diceType,
+        result: sum,
+        modifier,
+        total,
+        timestamp: new Date(),
+      }
+
+      storage.diceRolls.add(roomId, roll)
+      setLastRoll(total)
+      setDescription("")
+
+      setTimeout(() => setLastRoll(null), 3000)
+    } catch {
+      toast({
+        title: "Erro ao rolar dados",
+        description: "Não foi possível salvar a rolagem. Tente novamente.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRolling(false)
     }
-    const sum = rolls.reduce((a, b) => a + b, 0)
-    const total = sum + modifier
-
-    const roll: DiceRoll = {
-      id: generateId(),
-      playerId,
-      playerName,
-      type: `${count}d${sides}${modifier !== 0 ? (modifier > 0 ? `+${modifier}` : modifier) : ""}`,
-      result: total,
-      rolls,
-      modifier,
-      timestamp: Date.now(),
-      description: description || undefined,
-    }
-
-    storage.diceRolls.add(roomId, roll)
-    setLastRoll(total)
-    setDescription("")
-
-    setTimeout(() => setLastRoll(null), 3000)
   }
 
   return (

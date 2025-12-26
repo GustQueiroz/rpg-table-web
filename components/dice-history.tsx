@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { storage } from "@/lib/storage"
+import { api } from "@/lib/api.client"
 import type { DiceRoll } from "@/lib/types"
 
 interface DiceHistoryProps {
@@ -12,19 +13,44 @@ interface DiceHistoryProps {
 export function DiceHistory({ roomId }: DiceHistoryProps) {
   const [rolls, setRolls] = useState<DiceRoll[]>([])
 
-  useEffect(() => {
-    const updateRolls = () => {
-      setRolls(storage.diceRolls.getByRoom(roomId))
+  const fetchRolls = async () => {
+    try {
+      const backendRolls = await api.diceRolls.getByRoom(roomId)
+      if (backendRolls && Array.isArray(backendRolls)) {
+        const formattedRolls: DiceRoll[] = backendRolls.map((roll: any) => ({
+          id: roll.id,
+          roomId: roll.roomId,
+          playerName: roll.playerName,
+          diceType: roll.diceType,
+          result: roll.total,
+          modifier: roll.modifier,
+          total: roll.total,
+          timestamp: new Date(roll.timestamp),
+        }))
+        setRolls(formattedRolls)
+        
+        formattedRolls.forEach((roll) => {
+          storage.diceRolls.add(roomId, {
+            ...roll,
+            timestamp: roll.timestamp.getTime(),
+          })
+        })
+      }
+    } catch {
+      const localRolls = storage.diceRolls.getByRoom(roomId)
+      setRolls(localRolls)
     }
+  }
 
-    updateRolls()
-    const interval = setInterval(updateRolls, 1000)
+  useEffect(() => {
+    fetchRolls()
+    const interval = setInterval(fetchRolls, 2000)
 
     return () => clearInterval(interval)
   }, [roomId])
 
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp)
+  const formatTime = (timestamp: Date | number) => {
+    const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
     return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
   }
 
@@ -45,7 +71,7 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
                     <p className="font-bold text-sm">{roll.playerName}</p>
                     {roll.description && <p className="text-xs text-muted-foreground mt-1">{roll.description}</p>}
                     <p className="text-xs text-muted-foreground mt-1 font-mono">
-                      {roll.type}: [{roll.rolls.join(", ")}]
+                      {roll.diceType || roll.type}
                       {roll.modifier !== 0 && ` ${roll.modifier > 0 ? "+" : ""}${roll.modifier}`}
                     </p>
                   </div>

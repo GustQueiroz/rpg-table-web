@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/hooks/use-toast"
 import { storage } from "@/lib/storage"
+import { api } from "@/lib/api.client"
 import { DiceHistory } from "@/components/dice-history"
 import type { Player } from "@/lib/types"
 
@@ -17,9 +19,11 @@ interface MasterViewProps {
 }
 
 export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewProps) {
+  const { toast } = useToast()
   const [room, setRoom] = useState(storage.rooms.getById(roomId))
   const [players, setPlayers] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const updateData = () => {
@@ -37,31 +41,63 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
 
   const selectedPlayerData = players.find((p) => p.id === selectedPlayer)
 
-  const updatePlayerHp = (playerId: string, amount: number) => {
+  const updatePlayerHp = async (playerId: string, amount: number) => {
     const player = players.find((p) => p.id === playerId)
     if (player?.character) {
       const newHp = Math.max(0, Math.min(player.character.maxHp, player.character.currentHp + amount))
       const updated = { ...player.character, currentHp: newHp }
       storage.players.update(playerId, { character: updated })
+      setPlayers(storage.players.getByRoom(roomId))
+
+      if (player.character.id) {
+        try {
+          await api.characters.update(player.character.id, {
+            currentHp: newHp,
+          })
+        } catch {
+        }
+      }
     }
   }
 
-  const addConditionToPlayer = (playerId: string, condition: string) => {
+  const addConditionToPlayer = async (playerId: string, condition: string) => {
     const player = players.find((p) => p.id === playerId)
     if (player?.character && condition.trim()) {
-      const updated = { ...player.character, conditions: [...player.character.conditions, condition.trim()] }
+      const newConditions = [...(player.character.conditions || []), condition.trim()]
+      const updated = { ...player.character, conditions: newConditions }
       storage.players.update(playerId, { character: updated })
+      setPlayers(storage.players.getByRoom(roomId))
+
+      if (player.character.id) {
+        try {
+          await api.characters.update(player.character.id, {
+            conditions: newConditions,
+          })
+        } catch {
+        }
+      }
     }
   }
 
-  const removeConditionFromPlayer = (playerId: string, conditionIndex: number) => {
+  const removeConditionFromPlayer = async (playerId: string, conditionIndex: number) => {
     const player = players.find((p) => p.id === playerId)
     if (player?.character) {
+      const newConditions = (player.character.conditions || []).filter((_, i) => i !== conditionIndex)
       const updated = {
         ...player.character,
-        conditions: player.character.conditions.filter((_, i) => i !== conditionIndex),
+        conditions: newConditions,
       }
       storage.players.update(playerId, { character: updated })
+      setPlayers(storage.players.getByRoom(roomId))
+
+      if (player.character.id) {
+        try {
+          await api.characters.update(player.character.id, {
+            conditions: newConditions,
+          })
+        } catch {
+        }
+      }
     }
   }
 
@@ -71,13 +107,28 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
   }
 
   const handleRefresh = async () => {
-    if (onRefresh) {
-      await onRefresh()
+    setIsRefreshing(true)
+    try {
+      if (onRefresh) {
+        await onRefresh()
+      }
+      const currentRoom = storage.rooms.getById(roomId)
+      const currentPlayers = storage.players.getByRoom(roomId)
+      setRoom(currentRoom)
+      setPlayers(currentPlayers)
+      toast({
+        title: "Atualizado com sucesso",
+        description: "Os dados da sala foram atualizados.",
+      })
+    } catch {
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar os dados da sala.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRefreshing(false)
     }
-    const currentRoom = storage.rooms.getById(roomId)
-    const currentPlayers = storage.players.getByRoom(roomId)
-    setRoom(currentRoom)
-    setPlayers(currentPlayers)
   }
 
   return (
@@ -97,8 +148,14 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             </div>
             <div className="flex flex-col gap-2">
               {onRefresh && (
-                <Button onClick={handleRefresh} variant="outline" size="sm" className="font-semibold">
-                  Atualizar
+                <Button 
+                  onClick={handleRefresh} 
+                  variant="outline" 
+                  size="sm" 
+                  className="font-semibold"
+                  disabled={isRefreshing}
+                >
+                  {isRefreshing ? "Atualizando..." : "Atualizar"}
                 </Button>
               )}
               {onLeave && (

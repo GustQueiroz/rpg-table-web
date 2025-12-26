@@ -5,7 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { useToast } from "@/hooks/use-toast"
 import { storage } from "@/lib/storage"
+import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
 import type { Character } from "@/lib/types"
@@ -19,9 +21,11 @@ interface PlayerViewProps {
 }
 
 export function PlayerView({ roomId, playerId, character: initialCharacter, onLeave, onRefresh }: PlayerViewProps) {
+  const { toast } = useToast()
   const [character, setCharacter] = useState(initialCharacter)
   const [tempHp, setTempHp] = useState("")
   const [newCondition, setNewCondition] = useState("")
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -40,11 +44,20 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
     return mod >= 0 ? `+${mod}` : `${mod}`
   }
 
-  const updateHp = (amount: number) => {
+  const updateHp = async (amount: number) => {
     const newHp = Math.max(0, Math.min(character.maxHp, character.currentHp + amount))
     const updated = { ...character, currentHp: newHp }
     setCharacter(updated)
     storage.players.update(playerId, { character: updated })
+
+    if (character.id) {
+      try {
+        await api.characters.update(character.id, {
+          currentHp: newHp,
+        })
+      } catch {
+      }
+    }
   }
 
   const applyTempHp = () => {
@@ -55,29 +68,64 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
     }
   }
 
-  const addCondition = () => {
+  const addCondition = async () => {
     if (newCondition.trim()) {
-      const updated = { ...character, conditions: [...character.conditions, newCondition.trim()] }
+      const newConditions = [...(character.conditions || []), newCondition.trim()]
+      const updated = { ...character, conditions: newConditions }
       setCharacter(updated)
       storage.players.update(playerId, { character: updated })
       setNewCondition("")
+
+      if (character.id) {
+        try {
+          await api.characters.update(character.id, {
+            conditions: newConditions,
+          })
+        } catch {
+        }
+      }
     }
   }
 
-  const removeCondition = (index: number) => {
-    const updated = { ...character, conditions: character.conditions.filter((_, i) => i !== index) }
+  const removeCondition = async (index: number) => {
+    const newConditions = (character.conditions || []).filter((_, i) => i !== index)
+    const updated = { ...character, conditions: newConditions }
     setCharacter(updated)
     storage.players.update(playerId, { character: updated })
+
+    if (character.id) {
+      try {
+        await api.characters.update(character.id, {
+          conditions: newConditions,
+        })
+      } catch {
+      }
+    }
   }
 
   const handleRefresh = async () => {
-    if (onRefresh) {
-      await onRefresh()
-    }
-    const players = storage.players.getByRoom(roomId)
-    const player = players.find((p) => p.id === playerId)
-    if (player?.character) {
-      setCharacter(player.character)
+    setIsRefreshing(true)
+    try {
+      if (onRefresh) {
+        await onRefresh()
+      }
+      const players = storage.players.getByRoom(roomId)
+      const player = players.find((p) => p.id === playerId)
+      if (player?.character) {
+        setCharacter(player.character)
+      }
+      toast({
+        title: "Atualizado com sucesso",
+        description: "Os dados do personagem foram atualizados.",
+      })
+    } catch {
+      toast({
+        title: "Erro ao atualizar",
+        description: "Não foi possível atualizar os dados do personagem.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsRefreshing(false)
     }
   }
 
@@ -100,8 +148,14 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
             </div>
             <div className="flex flex-col gap-2">
               {onRefresh && (
-                <Button onClick={handleRefresh} variant="outline" size="sm" className="font-semibold">
-                  Atualizar
+                <Button 
+                  onClick={handleRefresh} 
+                  variant="outline" 
+                  size="sm" 
+                  className="font-semibold"
+                  disabled={isRefreshing}
+                >
+                  {isRefreshing ? "Atualizando..." : "Atualizar"}
                 </Button>
               )}
               {onLeave && (
