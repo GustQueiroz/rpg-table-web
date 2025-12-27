@@ -217,7 +217,24 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             <p className="text-muted-foreground mt-1">{room?.name}</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-right p-4 bg-muted/50 rounded-lg border border-border/40">
+            <div 
+              className="text-right p-4 bg-muted/50 rounded-lg border border-border/40 cursor-pointer hover:bg-muted/70 transition-colors"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(roomId)
+                  toast({
+                    title: "Código copiado",
+                    description: "O código da sala foi copiado para a área de transferência.",
+                  })
+                } catch {
+                  toast({
+                    title: "Erro ao copiar",
+                    description: "Não foi possível copiar o código.",
+                    variant: "destructive",
+                  })
+                }
+              }}
+            >
               <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
               <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
             </div>

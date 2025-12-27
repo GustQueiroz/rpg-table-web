@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react"
 import { useSSE } from "@/hooks/use-sse"
 import { api } from "@/lib/api.client"
 import type { ChatMessage } from "@/lib/types"
@@ -19,6 +20,7 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -89,10 +91,46 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
     return timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
   }
 
+  if (!isVisible) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold flex items-center gap-2">
+              <MessageSquare className="h-5 w-5" />
+              Chat
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsVisible(true)}
+              className="font-semibold"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+    )
+  }
+
   return (
     <Card className="flex flex-col h-full max-h-[600px]">
       <CardHeader className="flex-shrink-0">
-        <CardTitle className="text-2xl font-bold">Chat</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />
+            Chat
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsVisible(false)}
+            className="font-semibold"
+          >
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 min-h-0 p-4">
         <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">

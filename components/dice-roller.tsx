@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ChevronDown, ChevronUp, Dice1 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
@@ -20,9 +21,9 @@ interface DiceRollerProps {
 export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
   const { toast } = useToast()
   const [modifier, setModifier] = useState(0)
-  const [description, setDescription] = useState("")
   const [lastRoll, setLastRoll] = useState<number | null>(null)
   const [isRolling, setIsRolling] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
 
   const rollDice = async (sides: number, count = 1) => {
     setIsRolling(true)
@@ -58,7 +59,6 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
 
       storage.diceRolls.add(roomId, roll)
       setLastRoll(total)
-      setDescription("")
 
       setTimeout(() => setLastRoll(null), 3000)
     } catch {
@@ -72,10 +72,46 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
     }
   }
 
+  if (!isVisible) {
+    return (
+      <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold flex items-center gap-2">
+              <Dice1 className="h-5 w-5" />
+              Rolagem de Dados
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsVisible(true)}
+              className="font-semibold"
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Rolagem de Dados</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            <Dice1 className="h-5 w-5" />
+            Rolagem de Dados
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsVisible(false)}
+            className="font-semibold"
+          >
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {lastRoll !== null && (
@@ -92,16 +128,6 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
             value={modifier}
             onChange={(e) => setModifier(Number.parseInt(e.target.value) || 0)}
             placeholder="0"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="description" className="font-semibold">Descrição (opcional)</Label>
-          <Input
-            id="description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Ex: Ataque com espada"
           />
         </div>
 

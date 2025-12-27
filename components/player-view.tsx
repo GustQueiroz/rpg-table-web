@@ -218,7 +218,24 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
             </p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="text-right p-4 bg-muted/50 rounded-lg border border-border/40">
+            <div 
+              className="text-right p-4 bg-muted/50 rounded-lg border border-border/40 cursor-pointer hover:bg-muted/70 transition-colors"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(roomId)
+                  toast({
+                    title: "Código copiado",
+                    description: "O código da sala foi copiado para a área de transferência.",
+                  })
+                } catch {
+                  toast({
+                    title: "Erro ao copiar",
+                    description: "Não foi possível copiar o código.",
+                    variant: "destructive",
+                  })
+                }
+              }}
+            >
               <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
               <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
             </div>
@@ -380,7 +397,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
               playerName={character.playerName || character.name}
               playerImage={character.image || null}
             />
-            <PlayersList roomId={roomId} />
             <DiceRoller roomId={roomId} playerId={playerId} playerName={character.name} />
             <DiceHistory roomId={roomId} />
           </div>

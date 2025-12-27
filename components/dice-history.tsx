@@ -84,7 +84,6 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-sm">{roll.playerName}</p>
-                    {roll.description && <p className="text-xs text-muted-foreground mt-1">{roll.description}</p>}
                     <p className="text-xs text-muted-foreground mt-1 font-mono">
                       {roll.diceType || roll.type}
                       {roll.modifier !== 0 && ` ${roll.modifier > 0 ? "+" : ""}${roll.modifier}`}
