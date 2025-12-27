@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import type { Character, Player, Room } from "@/lib/types"
 import { storage } from "@/lib/storage"
 import { generateId } from "@/lib/utils/id-generator"
-import { useSSE } from "@/hooks/use-sse"
 
 interface GameContextType {
   roomId: string | null
@@ -218,26 +217,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
     } catch {
     }
   }
-
-  useSSE(roomId, {
-    onCharacterCreated: async () => {
-      if (roomId) {
-        await refreshData()
-      }
-    },
-    onCharacterUpdated: async (data) => {
-      if (roomId && playerId) {
-        const player = storage.players.getByRoom(roomId).find((p) => p.id === playerId)
-        if (player?.character?.id === data.characterId) {
-          await refreshData()
-        } else if (roomId) {
-          await refreshData()
-        }
-      }
-    },
-    onDiceRolled: () => {
-    },
-  })
 
   return (
     <GameContext.Provider

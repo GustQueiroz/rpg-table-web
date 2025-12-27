@@ -15,7 +15,6 @@ import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { useSSE } from "@/hooks/use-sse"
 import { useGame } from "@/lib/contexts/game-context"
 import type { Player, Character } from "@/lib/types"
 
@@ -90,18 +89,10 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     }
 
     updateData()
-  }, [roomId])
+    const interval = setInterval(updateData, 1000)
 
-  useSSE(roomId, {
-    onCharacterCreated: async () => {
-      await fetchPlayersFromBackend()
-    },
-    onCharacterUpdated: async () => {
-      await fetchPlayersFromBackend()
-    },
-    onDiceRolled: () => {
-    },
-  })
+    return () => clearInterval(interval)
+  }, [roomId])
 
   const selectedPlayerData = players.find((p) => p.id === selectedPlayer)
 

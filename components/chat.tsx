@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react"
-import { useSSE } from "@/hooks/use-sse"
 import { api } from "@/lib/api.client"
 import type { ChatMessage } from "@/lib/types"
 
@@ -22,7 +21,6 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
   const [isSending, setIsSending] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const fetchMessages = async () => {
     try {
@@ -44,29 +42,13 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
 
   useEffect(() => {
     fetchMessages()
+    const interval = setInterval(fetchMessages, 1000)
+    return () => clearInterval(interval)
   }, [roomId])
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
-
-  useSSE(roomId, {
-    onCharacterCreated: () => {
-    },
-    onCharacterUpdated: () => {
-    },
-    onDiceRolled: () => {
-    },
-    onChatMessage: async () => {
-      if (fetchTimeoutRef.current) {
-        clearTimeout(fetchTimeoutRef.current)
-      }
-      fetchTimeoutRef.current = setTimeout(async () => {
-        await fetchMessages()
-        fetchTimeoutRef.current = null
-      }, 100)
-    },
-  })
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()

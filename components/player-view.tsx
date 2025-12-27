@@ -14,7 +14,6 @@ import { Chat } from "@/components/chat"
 import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
-import { useSSE } from "@/hooks/use-sse"
 import type { Character } from "@/lib/types"
 
 interface PlayerViewProps {
@@ -32,52 +31,53 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
   const [newCondition, setNewCondition] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
 
-  useSSE(roomId, {
-    onCharacterCreated: () => {
-    },
-    onCharacterUpdated: async (data) => {
-      if (character.id && data.characterId === character.id) {
-        try {
-          const charactersData = await api.characters.getByRoom(roomId)
-          if (charactersData && Array.isArray(charactersData)) {
-            const charData = charactersData.find((c: any) => c.id === character.id)
-            if (charData) {
-              const updatedCharacter: Character = {
-                id: charData.id,
-                roomId: charData.roomId,
-                playerName: charData.playerName,
-                name: charData.name,
-                classe: charData.classe,
-                class: charData.classe,
-                level: charData.level,
-                attributes: {
-                  strength: charData.strength,
-                  dexterity: charData.dexterity,
-                  constitution: charData.constitution,
-                  intelligence: charData.intelligence,
-                  wisdom: charData.wisdom,
-                  charisma: charData.charisma,
-                },
-                currentHp: charData.currentHp,
-                maxHp: charData.maxHp,
-                armorClass: charData.armorClass,
-                notes: charData.notes,
-                image: charData.image,
-                conditions: charData.conditions || [],
-                createdAt: new Date(charData.createdAt),
-                updatedAt: new Date(charData.updatedAt),
-              }
-              setCharacter(updatedCharacter)
-              storage.players.update(playerId, { character: updatedCharacter })
+  useEffect(() => {
+    const updateCharacter = async () => {
+      try {
+        const charactersData = await api.characters.getByRoom(roomId)
+        if (charactersData && Array.isArray(charactersData)) {
+          const player = storage.players.getByRoom(roomId).find((p) => p.id === playerId)
+          const charData = charactersData.find((c: any) => c.playerName === player?.name)
+          if (charData && character.id && charData.id === character.id) {
+            const updatedCharacter: Character = {
+              id: charData.id,
+              roomId: charData.roomId,
+              playerName: charData.playerName,
+              name: charData.name,
+              classe: charData.classe,
+              class: charData.classe,
+              level: charData.level,
+              attributes: {
+                strength: charData.strength,
+                dexterity: charData.dexterity,
+                constitution: charData.constitution,
+                intelligence: charData.intelligence,
+                wisdom: charData.wisdom,
+                charisma: charData.charisma,
+              },
+              currentHp: charData.currentHp,
+              maxHp: charData.maxHp,
+              armorClass: charData.armorClass,
+              notes: charData.notes,
+              image: charData.image,
+              conditions: charData.conditions || [],
+              createdAt: new Date(charData.createdAt),
+              updatedAt: new Date(charData.updatedAt),
             }
+            setCharacter(updatedCharacter)
+            storage.players.update(playerId, { character: updatedCharacter })
           }
-        } catch {
         }
+      } catch {
       }
-    },
-    onDiceRolled: () => {
-    },
-  })
+    }
+
+    if (character.id) {
+      updateCharacter()
+      const interval = setInterval(updateCharacter, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [roomId, playerId])
 
   const calculateModifier = (value: number): string => {
     const mod = Math.floor((value - 10) / 2)

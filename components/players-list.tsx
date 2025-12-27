@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { List, Grid } from "lucide-react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CharacterCard } from "@/components/character-card"
-import { useSSE } from "@/hooks/use-sse"
 import { api } from "@/lib/api.client"
 import type { Player, Character } from "@/lib/types"
 
@@ -69,18 +68,9 @@ export function PlayersList({ roomId, onPlayerSelect }: PlayersListProps) {
 
   useEffect(() => {
     fetchPlayers()
+    const interval = setInterval(fetchPlayers, 1000)
+    return () => clearInterval(interval)
   }, [roomId])
-
-  useSSE(roomId, {
-    onCharacterCreated: async () => {
-      await fetchPlayers()
-    },
-    onCharacterUpdated: async () => {
-      await fetchPlayers()
-    },
-    onDiceRolled: () => {
-    },
-  })
 
   return (
     <Card>
