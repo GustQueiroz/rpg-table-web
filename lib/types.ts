@@ -61,6 +61,15 @@ export interface DiceRoll {
   timestamp: Date
 }
 
+export interface ChatMessage {
+  id: string
+  roomId: string
+  playerName: string
+  playerImage: string | null
+  message: string
+  timestamp: Date
+}
+
 export type GameState = {
   room: Room
   characters: Character[]

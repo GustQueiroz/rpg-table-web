@@ -10,6 +10,7 @@ import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
+import { Chat } from "@/components/chat"
 import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
@@ -358,6 +359,11 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           </div>
 
           <div className="space-y-4">
+            <Chat 
+              roomId={roomId}
+              playerName={player?.name || "Mestre"}
+              playerImage={null}
+            />
             <DiceRoller 
               roomId={roomId} 
               playerId={masterId} 

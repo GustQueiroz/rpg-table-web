@@ -6,6 +6,7 @@ interface SSEEventHandlers {
   onCharacterCreated?: (data: { characterId: string; roomId: string; playerName: string }) => void
   onCharacterUpdated?: (data: { characterId: string; roomId: string; updates: any }) => void
   onDiceRolled?: (data: { rollId: string; roomId: string; playerName: string; diceType: string; total: number }) => void
+  onChatMessage?: (data: { messageId: string; roomId: string; playerName: string; playerImage: string | null; message: string; timestamp: string }) => void
 }
 
 interface UseSSEReturn {
@@ -67,6 +68,14 @@ export function useSSE(roomId: string | null, handlers: SSEEventHandlers): UseSS
           try {
             const data = JSON.parse(event.data)
             handlersRef.current.onDiceRolled?.(data)
+          } catch {
+          }
+        })
+
+        eventSource.addEventListener("chat:message", (event) => {
+          try {
+            const data = JSON.parse(event.data)
+            handlersRef.current.onChatMessage?.(data)
           } catch {
           }
         })

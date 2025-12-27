@@ -16,6 +16,7 @@ model Room {
   
   characters    Character[]
   diceRolls     DiceRoll[]
+  chatMessages  ChatMessage[]
 
   @@map("rooms")
 }
@@ -60,5 +61,19 @@ model DiceRoll {
   room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@map("dice_rolls")
+  @@index([roomId, timestamp])
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  roomId      String   @map("room_id")
+  playerName  String   @map("player_name")
+  playerImage String?  @map("player_image")
+  message     String
+  timestamp   DateTime @default(now())
+
+  room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
   @@index([roomId, timestamp])
 }

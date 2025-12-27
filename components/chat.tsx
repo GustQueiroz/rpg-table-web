@@ -1,0 +1,138 @@
+"use client"
+
+import { useState, useEffect, useRef } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useSSE } from "@/hooks/use-sse"
+import { api } from "@/lib/api.client"
+import type { ChatMessage } from "@/lib/types"
+
+interface ChatProps {
+  roomId: string
+  playerName: string
+  playerImage: string | null
+}
+
+export function Chat({ roomId, playerName, playerImage }: ChatProps) {
+  const [messages, setMessages] = useState<ChatMessage[]>([])
+  const [newMessage, setNewMessage] = useState("")
+  const [isSending, setIsSending] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  const fetchMessages = async () => {
+    try {
+      const backendMessages = await api.chat.getByRoom(roomId)
+      if (backendMessages && Array.isArray(backendMessages)) {
+        const formattedMessages: ChatMessage[] = backendMessages.map((msg: any) => ({
+          id: msg.id,
+          roomId: msg.roomId,
+          playerName: msg.playerName,
+          playerImage: msg.playerImage,
+          message: msg.message,
+          timestamp: new Date(msg.timestamp),
+        }))
+        setMessages(formattedMessages)
+      }
+    } catch {
+    }
+  }
+
+  useEffect(() => {
+    fetchMessages()
+  }, [roomId])
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  useSSE(roomId, {
+    onCharacterCreated: () => {
+    },
+    onCharacterUpdated: () => {
+    },
+    onDiceRolled: () => {
+    },
+    onChatMessage: async () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current)
+      }
+      fetchTimeoutRef.current = setTimeout(async () => {
+        await fetchMessages()
+        fetchTimeoutRef.current = null
+      }, 100)
+    },
+  })
+
+  const handleSendMessage = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newMessage.trim() || isSending) return
+
+    setIsSending(true)
+    try {
+      await api.chat.create({
+        roomId,
+        playerName,
+        playerImage,
+        message: newMessage.trim(),
+      })
+      setNewMessage("")
+    } catch {
+    } finally {
+      setIsSending(false)
+    }
+  }
+
+  const formatTime = (timestamp: Date) => {
+    return timestamp.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  }
+
+  return (
+    <Card className="flex flex-col h-full max-h-[600px]">
+      <CardHeader className="flex-shrink-0">
+        <CardTitle className="text-2xl font-bold">Chat</CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col flex-1 min-h-0 p-4">
+        <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+          {messages.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem ainda</p>
+          ) : (
+            messages.map((msg) => (
+              <div key={msg.id} className="flex items-start gap-3">
+                <Avatar className="h-8 w-8 border-2 border-border flex-shrink-0">
+                  <AvatarImage src={msg.playerImage || undefined} alt={msg.playerName} />
+                  <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
+                    {msg.playerName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <p className="font-bold text-sm">{msg.playerName}</p>
+                    <p className="text-xs text-muted-foreground">{formatTime(msg.timestamp)}</p>
+                  </div>
+                  <p className="text-sm break-words">{msg.message}</p>
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        <form onSubmit={handleSendMessage} className="flex gap-2 flex-shrink-0">
+          <Input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Digite sua mensagem..."
+            disabled={isSending}
+            className="flex-1"
+          />
+          <Button type="submit" disabled={isSending || !newMessage.trim()} className="font-semibold">
+            Enviar
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  )
+}
+

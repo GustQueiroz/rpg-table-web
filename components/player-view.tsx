@@ -10,6 +10,7 @@ import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
+import { Chat } from "@/components/chat"
 import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
@@ -375,6 +376,11 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           </div>
 
           <div className="space-y-4">
+            <Chat 
+              roomId={roomId}
+              playerName={character.playerName || character.name}
+              playerImage={character.image || null}
+            />
             <PlayersList roomId={roomId} />
             <DiceRoller roomId={roomId} playerId={playerId} playerName={character.name} />
             <DiceHistory roomId={roomId} />

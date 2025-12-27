@@ -72,5 +72,23 @@ export const api = {
         return response.json()
       },
     },
+
+    chat: {
+      async create(data: any) {
+        const response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        })
+        if (!response.ok) throw new Error("Failed to send message")
+        return response.json()
+      },
+
+      async getByRoom(roomId: string) {
+        const response = await fetch(`/api/chat?roomId=${roomId}`)
+        if (!response.ok) throw new Error("Failed to fetch chat messages")
+        return response.json()
+      },
+    },
   }
   
