@@ -21,6 +21,8 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
   const [isSending, setIsSending] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const lastMessageCountRef = useRef(0)
 
   const fetchMessages = async () => {
     try {
@@ -34,7 +36,20 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
           message: msg.message,
           timestamp: new Date(msg.timestamp),
         }))
+        
+        const hasNewMessage = formattedMessages.length > lastMessageCountRef.current
+        const wasAtBottom = messagesContainerRef.current 
+          ? messagesContainerRef.current.scrollHeight - messagesContainerRef.current.scrollTop <= messagesContainerRef.current.clientHeight + 100
+          : true
+        
         setMessages(formattedMessages)
+        lastMessageCountRef.current = formattedMessages.length
+        
+        if (hasNewMessage && wasAtBottom) {
+          setTimeout(() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+          }, 100)
+        }
       }
     } catch {
     }
@@ -47,8 +62,12 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
   }, [roomId])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    if (messages.length > 0 && lastMessageCountRef.current === 0) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "auto" })
+      }, 100)
+    }
+  }, [messages.length])
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -63,6 +82,9 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
         message: newMessage.trim(),
       })
       setNewMessage("")
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+      }, 200)
     } catch {
     } finally {
       setIsSending(false)
@@ -115,7 +137,10 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
         </div>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 min-h-0 p-4">
-        <div className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2">
+        <div 
+          ref={messagesContainerRef}
+          className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2"
+        >
           {messages.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem ainda</p>
           ) : (
