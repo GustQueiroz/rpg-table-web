@@ -10,9 +10,11 @@ import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import { DiceRoller } from "@/components/dice-roller"
 import { DiceHistory } from "@/components/dice-history"
+import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useSSE } from "@/hooks/use-sse"
 import { useGame } from "@/lib/contexts/game-context"
 import type { Player, Character } from "@/lib/types"
 
@@ -87,10 +89,18 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     }
 
     updateData()
-    const interval = setInterval(updateData, 2000)
-
-    return () => clearInterval(interval)
   }, [roomId])
+
+  useSSE(roomId, {
+    onCharacterCreated: async () => {
+      await fetchPlayersFromBackend()
+    },
+    onCharacterUpdated: async () => {
+      await fetchPlayersFromBackend()
+    },
+    onDiceRolled: () => {
+    },
+  })
 
   const selectedPlayerData = players.find((p) => p.id === selectedPlayer)
 
@@ -236,72 +246,20 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl font-bold">Jogadores ({players.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {players.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogador conectado</p>
-                  ) : (
-                    players.map((player) => (
-                      <div
-                        key={player.id}
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          selectedPlayer === player.id 
-                            ? "border-primary bg-primary/10 shadow-md scale-[1.02]" 
-                            : "border-border/60 hover:bg-accent/50 hover:border-border hover:shadow-sm"
-                        }`}
-                        onClick={() => setSelectedPlayer(player.id)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 flex-1">
-                            <Avatar className="h-10 w-10 border-2 border-border flex-shrink-0">
-                              <AvatarImage src={player.character?.image || undefined} alt={player.name} />
-                              <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-sm">
-                                {player.name.charAt(0).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold text-lg">{player.name}</p>
-                              {player.character && (
-                                <p className="text-sm text-muted-foreground mt-1">
-                                  {player.character.name} - {player.character.class || player.character.classe} - Nível {player.character.level}
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                          {player.character && (
-                            <div className="flex items-center gap-6">
-                              <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[60px]">
-                                <p className="text-xs text-muted-foreground font-semibold mb-1">PV</p>
-                                <p className="font-bold text-lg">
-                                  {player.character.currentHp}/{player.character.maxHp}
-                                </p>
-                              </div>
-                              <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[50px]">
-                                <p className="text-xs text-muted-foreground font-semibold mb-1">CA</p>
-                                <p className="font-bold text-lg">{player.character.armorClass}</p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                        {player.character && player.character.conditions.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {player.character.conditions.map((condition, idx) => (
-                              <Badge key={idx} variant="secondary" className="text-xs">
-                                {condition}
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <PlayersList 
+              roomId={roomId}
+              onPlayerSelect={(selectedPlayerFromList) => {
+                if (selectedPlayerFromList.character?.id) {
+                  const playerId = `player_${selectedPlayerFromList.character.id}`
+                  setSelectedPlayer(playerId)
+                  
+                  const foundPlayer = players.find((p) => p.id === playerId)
+                  if (!foundPlayer) {
+                    fetchPlayersFromBackend()
+                  }
+                }
+              }}
+            />
 
             {selectedPlayerData?.character && (
               <Card>

@@ -4,15 +4,22 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { List, Grid } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { CharacterCard } from "@/components/character-card"
+import { useSSE } from "@/hooks/use-sse"
 import { api } from "@/lib/api.client"
 import type { Player, Character } from "@/lib/types"
 
 interface PlayersListProps {
   roomId: string
+  onPlayerSelect?: (player: Player) => void
 }
 
-export function PlayersList({ roomId }: PlayersListProps) {
+export function PlayersList({ roomId, onPlayerSelect }: PlayersListProps) {
   const [players, setPlayers] = useState<Player[]>([])
+  const [viewMode, setViewMode] = useState<"list" | "cards">("list")
 
   const fetchPlayers = async () => {
     try {
@@ -62,24 +69,48 @@ export function PlayersList({ roomId }: PlayersListProps) {
 
   useEffect(() => {
     fetchPlayers()
-    const interval = setInterval(fetchPlayers, 2000)
-    return () => clearInterval(interval)
   }, [roomId])
+
+  useSSE(roomId, {
+    onCharacterCreated: async () => {
+      await fetchPlayers()
+    },
+    onCharacterUpdated: async () => {
+      await fetchPlayers()
+    },
+    onDiceRolled: () => {
+    },
+  })
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Jogadores ({players.length})</CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-2xl font-bold">Jogadores ({players.length})</CardTitle>
+          <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as "list" | "cards")}>
+            <TabsList>
+              <TabsTrigger value="list">
+                <List className="h-4 w-4" />
+              </TabsTrigger>
+              <TabsTrigger value="cards">
+                <Grid className="h-4 w-4" />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-3">
-          {players.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogador conectado</p>
-          ) : (
-            players.map((player) => (
+        {players.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogador conectado</p>
+        ) : viewMode === "list" ? (
+          <div className="space-y-3">
+            {players.map((player) => (
               <div
                 key={player.id}
-                className="p-4 border-2 border-border/60 rounded-lg hover:bg-accent/50 transition-colors"
+                className={`p-4 border-2 border-border/60 rounded-lg hover:bg-accent/50 transition-colors ${
+                  onPlayerSelect ? "cursor-pointer" : ""
+                }`}
+                onClick={() => onPlayerSelect?.(player)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1">
@@ -123,9 +154,19 @@ export function PlayersList({ roomId }: PlayersListProps) {
                   </div>
                 )}
               </div>
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {players.map((player) => (
+              <CharacterCard
+                key={player.id}
+                player={player}
+                onClick={() => onPlayerSelect?.(player)}
+              />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   )

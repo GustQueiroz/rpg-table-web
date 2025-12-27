@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { eventsManager } from "@/lib/events-manager"
 
 export async function POST(request: Request) {
   try {
@@ -24,6 +25,7 @@ export async function POST(request: Request) {
     } = body
 
     let actualRoomId = roomId
+    let roomForEvents = null
 
     const room = await prisma.room.findUnique({
       where: { code: roomId },
@@ -31,6 +33,7 @@ export async function POST(request: Request) {
 
     if (room) {
       actualRoomId = room.id
+      roomForEvents = room
     } else {
       const roomById = await prisma.room.findUnique({
         where: { id: roomId },
@@ -38,6 +41,8 @@ export async function POST(request: Request) {
       if (!roomById) {
         return NextResponse.json({ error: "Room not found" }, { status: 404 })
       }
+      actualRoomId = roomById.id
+      roomForEvents = roomById
     }
 
     const character = await prisma.character.create({
@@ -62,6 +67,14 @@ export async function POST(request: Request) {
       },
     })
 
+    if (roomForEvents) {
+      eventsManager.emit(roomForEvents.code, "character:created", {
+        characterId: character.id,
+        roomId: roomForEvents.code,
+        playerName: character.playerName,
+      })
+    }
+
     return NextResponse.json(character)
   } catch (error) {
     return NextResponse.json(
@@ -83,6 +96,18 @@ export async function PATCH(request: Request) {
       where: { id },
       data: updates,
     })
+
+    const roomForEvents = await prisma.room.findUnique({
+      where: { id: character.roomId },
+    })
+
+    if (roomForEvents) {
+      eventsManager.emit(roomForEvents.code, "character:updated", {
+        characterId: character.id,
+        roomId: roomForEvents.code,
+        updates: updates,
+      })
+    }
 
     return NextResponse.json(character)
   } catch (error) {

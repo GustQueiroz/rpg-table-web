@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { eventsManager } from "@/lib/events-manager"
 
 export async function POST(request: Request) {
   try {
@@ -7,6 +8,7 @@ export async function POST(request: Request) {
     const { roomId, playerName, diceType, result, modifier, total } = body
 
     let actualRoomId = roomId
+    let roomForEvents = null
 
     const room = await prisma.room.findUnique({
       where: { code: roomId },
@@ -14,6 +16,7 @@ export async function POST(request: Request) {
 
     if (room) {
       actualRoomId = room.id
+      roomForEvents = room
     } else {
       const roomById = await prisma.room.findUnique({
         where: { id: roomId },
@@ -21,6 +24,8 @@ export async function POST(request: Request) {
       if (!roomById) {
         return NextResponse.json({ error: "Room not found" }, { status: 404 })
       }
+      actualRoomId = roomById.id
+      roomForEvents = roomById
     }
 
     const diceRoll = await prisma.diceRoll.create({
@@ -33,6 +38,16 @@ export async function POST(request: Request) {
         total,
       },
     })
+
+    if (roomForEvents) {
+      eventsManager.emit(roomForEvents.code, "dice:rolled", {
+        rollId: diceRoll.id,
+        roomId: roomForEvents.code,
+        playerName: diceRoll.playerName,
+        diceType: diceRoll.diceType,
+        total: diceRoll.total,
+      })
+    }
 
     return NextResponse.json(diceRoll)
   } catch (error) {

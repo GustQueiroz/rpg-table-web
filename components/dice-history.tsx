@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSSE } from "@/hooks/use-sse"
 import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import type { DiceRoll } from "@/lib/types"
@@ -12,6 +13,7 @@ interface DiceHistoryProps {
 
 export function DiceHistory({ roomId }: DiceHistoryProps) {
   const [rolls, setRolls] = useState<DiceRoll[]>([])
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const fetchRolls = async () => {
     try {
@@ -44,10 +46,23 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
 
   useEffect(() => {
     fetchRolls()
-    const interval = setInterval(fetchRolls, 2000)
-
-    return () => clearInterval(interval)
   }, [roomId])
+
+  useSSE(roomId, {
+    onCharacterCreated: () => {
+    },
+    onCharacterUpdated: () => {
+    },
+    onDiceRolled: async () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current)
+      }
+      fetchTimeoutRef.current = setTimeout(async () => {
+        await fetchRolls()
+        fetchTimeoutRef.current = null
+      }, 200)
+    },
+  })
 
   const formatTime = (timestamp: Date | number) => {
     const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
