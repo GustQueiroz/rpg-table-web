@@ -15,7 +15,6 @@ import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
 import { useSSE } from "@/hooks/use-sse"
-import { api } from "@/lib/api.client"
 import type { Character } from "@/lib/types"
 
 interface PlayerViewProps {
