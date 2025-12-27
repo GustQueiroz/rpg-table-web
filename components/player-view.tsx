@@ -398,6 +398,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
               roomId={roomId}
               playerName={character.playerName || character.name}
               playerImage={character.image || null}
+              showPlayersToggle={true}
             />
             <DiceRoller roomId={roomId} playerId={playerId} playerName={character.name} />
           </div>

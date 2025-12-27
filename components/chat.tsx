@@ -5,21 +5,25 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { ChevronDown, ChevronUp, MessageSquare } from "lucide-react"
+import { ChevronDown, ChevronUp, MessageSquare, Users } from "lucide-react"
+import { CharacterCardCompact } from "@/components/character-card-compact"
 import { api } from "@/lib/api.client"
-import type { ChatMessage } from "@/lib/types"
+import type { ChatMessage, Player, Character } from "@/lib/types"
 
 interface ChatProps {
   roomId: string
   playerName: string
   playerImage: string | null
+  showPlayersToggle?: boolean
 }
 
-export function Chat({ roomId, playerName, playerImage }: ChatProps) {
+export function Chat({ roomId, playerName, playerImage, showPlayersToggle = false }: ChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [isSending, setIsSending] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+  const [viewMode, setViewMode] = useState<"chat" | "players">("chat")
+  const [players, setPlayers] = useState<Player[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
   const lastMessageCountRef = useRef(0)
@@ -55,11 +59,65 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
     }
   }
 
+  const fetchPlayers = async () => {
+    try {
+      const charactersData = await api.characters.getByRoom(roomId)
+      if (charactersData && Array.isArray(charactersData)) {
+        const playersFromBackend: Player[] = charactersData.map((charData: any) => {
+          const character: Character = {
+            id: charData.id,
+            roomId: charData.roomId,
+            playerName: charData.playerName,
+            name: charData.name,
+            classe: charData.classe,
+            class: charData.classe,
+            level: charData.level,
+            attributes: {
+              strength: charData.strength,
+              dexterity: charData.dexterity,
+              constitution: charData.constitution,
+              intelligence: charData.intelligence,
+              wisdom: charData.wisdom,
+              charisma: charData.charisma,
+            },
+            currentHp: charData.currentHp,
+            maxHp: charData.maxHp,
+            armorClass: charData.armorClass,
+            notes: charData.notes,
+            image: charData.image,
+            conditions: charData.conditions || [],
+            createdAt: new Date(charData.createdAt),
+            updatedAt: new Date(charData.updatedAt),
+          }
+
+          return {
+            id: `player_${charData.id}`,
+            name: charData.playerName,
+            role: "player" as const,
+            roomId: roomId,
+            character,
+          }
+        })
+
+        setPlayers(playersFromBackend)
+      }
+    } catch {
+    }
+  }
+
   useEffect(() => {
     fetchMessages()
     const interval = setInterval(fetchMessages, 1000)
     return () => clearInterval(interval)
   }, [roomId])
+
+  useEffect(() => {
+    if (showPlayersToggle && viewMode === "players") {
+      fetchPlayers()
+      const interval = setInterval(fetchPlayers, 1000)
+      return () => clearInterval(interval)
+    }
+  }, [roomId, viewMode, showPlayersToggle])
 
   useEffect(() => {
     if (messages.length > 0 && lastMessageCountRef.current === 0) {
@@ -101,17 +159,42 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-2xl font-bold flex items-center gap-2">
-              <MessageSquare className="h-5 w-5" />
-              Chat
+              {viewMode === "chat" ? (
+                <>
+                  <MessageSquare className="h-5 w-5" />
+                  Chat
+                </>
+              ) : (
+                <>
+                  <Users className="h-5 w-5" />
+                  Jogadores
+                </>
+              )}
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsVisible(true)}
-              className="font-semibold"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center gap-2">
+              {showPlayersToggle && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setViewMode(viewMode === "chat" ? "players" : "chat")}
+                  className="font-semibold"
+                >
+                  {viewMode === "chat" ? (
+                    <Users className="h-4 w-4" />
+                  ) : (
+                    <MessageSquare className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsVisible(true)}
+                className="font-semibold"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
       </Card>
@@ -123,59 +206,100 @@ export function Chat({ roomId, playerName, playerImage }: ChatProps) {
       <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <MessageSquare className="h-5 w-5" />
-            Chat
+            {viewMode === "chat" ? (
+              <>
+                <MessageSquare className="h-5 w-5" />
+                Chat
+              </>
+            ) : (
+              <>
+                <Users className="h-5 w-5" />
+                Jogadores
+              </>
+            )}
           </CardTitle>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsVisible(false)}
-            className="font-semibold"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-2">
+            {showPlayersToggle && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setViewMode(viewMode === "chat" ? "players" : "chat")}
+                className="font-semibold"
+              >
+                {viewMode === "chat" ? (
+                  <Users className="h-4 w-4" />
+                ) : (
+                  <MessageSquare className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsVisible(false)}
+              className="font-semibold"
+            >
+              <ChevronUp className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="flex flex-col flex-1 min-h-0 p-4">
-        <div 
-          ref={messagesContainerRef}
-          className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2"
-        >
-          {messages.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem ainda</p>
-          ) : (
-            messages.map((msg) => (
-              <div key={msg.id} className="flex items-start gap-3">
-                <Avatar className="h-8 w-8 border-2 border-border flex-shrink-0">
-                  <AvatarImage src={msg.playerImage || undefined} alt={msg.playerName} />
-                  <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
-                    {msg.playerName.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-baseline gap-2 mb-1">
-                    <p className="font-bold text-sm">{msg.playerName}</p>
-                    <p className="text-xs text-muted-foreground">{formatTime(msg.timestamp)}</p>
+        {viewMode === "chat" ? (
+          <>
+            <div 
+              ref={messagesContainerRef}
+              className="flex-1 overflow-y-auto space-y-3 mb-4 pr-2"
+            >
+              {messages.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem ainda</p>
+              ) : (
+                messages.map((msg) => (
+                  <div key={msg.id} className="flex items-start gap-3">
+                    <Avatar className="h-8 w-8 border-2 border-border flex-shrink-0">
+                      <AvatarImage src={msg.playerImage || undefined} alt={msg.playerName} />
+                      <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
+                        {msg.playerName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <p className="font-bold text-sm">{msg.playerName}</p>
+                        <p className="text-xs text-muted-foreground">{formatTime(msg.timestamp)}</p>
+                      </div>
+                      <p className="text-sm break-words">{msg.message}</p>
+                    </div>
                   </div>
-                  <p className="text-sm break-words">{msg.message}</p>
-                </div>
+                ))
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            <form onSubmit={handleSendMessage} className="flex gap-2 flex-shrink-0">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Digite sua mensagem..."
+                disabled={isSending}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={isSending || !newMessage.trim()} className="font-semibold">
+                Enviar
+              </Button>
+            </form>
+          </>
+        ) : (
+          <div className="flex-1 overflow-y-auto pr-2">
+            {players.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Nenhum jogador conectado</p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {players.map((player) => (
+                  <CharacterCardCompact key={player.id} player={player} />
+                ))}
               </div>
-            ))
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-        <form onSubmit={handleSendMessage} className="flex gap-2 flex-shrink-0">
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Digite sua mensagem..."
-            disabled={isSending}
-            className="flex-1"
-          />
-          <Button type="submit" disabled={isSending || !newMessage.trim()} className="font-semibold">
-            Enviar
-          </Button>
-        </form>
+            )}
+          </div>
+        )}
       </CardContent>
     </Card>
   )
