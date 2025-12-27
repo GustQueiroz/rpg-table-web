@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,9 +24,11 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
   const [lastRoll, setLastRoll] = useState<number | null>(null)
   const [isRolling, setIsRolling] = useState(false)
   const [isVisible, setIsVisible] = useState(true)
+  const [lastDiceUsed, setLastDiceUsed] = useState<{ sides: number; count: number } | null>(null)
 
-  const rollDice = async (sides: number, count = 1) => {
+  const rollDice = useCallback(async (sides: number, count = 1) => {
     setIsRolling(true)
+    setLastDiceUsed({ sides, count })
     try {
       const rolls: number[] = []
       for (let i = 0; i < count; i++) {
@@ -70,7 +72,7 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
     } finally {
       setIsRolling(false)
     }
-  }
+  }, [roomId, playerName, modifier])
 
   if (!isVisible) {
     return (
@@ -122,6 +124,15 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
             <p className="text-6xl font-bold relative z-10 animate-in zoom-in-95 duration-500 drop-shadow-lg dark:drop-shadow-xl">{lastRoll}</p>
           </div>
         )}
+
+        <Button
+          onClick={() => rollDice(20)}
+          className="w-full h-16 text-2xl font-bold bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 hover:from-primary/90 hover:to-primary/70 dark:hover:from-primary dark:hover:to-primary/80 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+          disabled={isRolling}
+        >
+          <Dice1 className="h-6 w-6 mr-2" />
+          Rolar d20
+        </Button>
 
         <div className="space-y-2">
           <Label htmlFor="modifier" className="font-semibold">Modificador</Label>
@@ -211,4 +222,23 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
       </CardContent>
     </Card>
   )
+
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return
+      }
+
+      if ((e.key === "r" || e.key === "R") && !isRolling) {
+        e.preventDefault()
+        rollDice(20)
+      } else if (e.key === " " && lastDiceUsed && !isRolling) {
+        e.preventDefault()
+        rollDice(lastDiceUsed.sides, lastDiceUsed.count)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyPress)
+    return () => window.removeEventListener("keydown", handleKeyPress)
+  }, [lastDiceUsed, isRolling, rollDice])
 }

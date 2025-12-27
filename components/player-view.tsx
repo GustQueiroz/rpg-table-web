@@ -14,6 +14,7 @@ import { Chat } from "@/components/chat"
 import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
+import { SessionTimer } from "@/components/session-timer"
 import type { Character } from "@/lib/types"
 
 interface PlayerViewProps {
@@ -30,6 +31,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
   const [tempHp, setTempHp] = useState("")
   const [newCondition, setNewCondition] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [roomCreatedAt, setRoomCreatedAt] = useState<Date | null>(null)
 
   useEffect(() => {
     const updateCharacter = async () => {
@@ -67,6 +69,11 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
             setCharacter(updatedCharacter)
             storage.players.update(playerId, { character: updatedCharacter })
           }
+        }
+
+        const roomData = await api.rooms.get(roomId)
+        if (roomData && roomData.createdAt) {
+          setRoomCreatedAt(new Date(roomData.createdAt))
         }
       } catch {
       }
@@ -262,11 +269,34 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
                   </Button>
                 )}
               </div>
+              {roomCreatedAt && <SessionTimer startTime={roomCreatedAt} />}
             </div>
           </div>
         </div>
 
-        <DiceHistory roomId={roomId} />
+        <DiceHistory 
+          roomId={roomId}
+          playerName={character.playerName || character.name}
+          playerId={playerId}
+          onQuickRoll={async () => {
+            try {
+              const rolls: number[] = []
+              rolls.push(Math.floor(Math.random() * 20) + 1)
+              const sum = rolls.reduce((a, b) => a + b, 0)
+              const total = sum
+
+              await api.diceRolls.create({
+                roomId,
+                playerName: character.playerName || character.name,
+                diceType: "1d20",
+                result: sum,
+                modifier: 0,
+                total,
+              })
+            } catch {
+            }
+          }}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
