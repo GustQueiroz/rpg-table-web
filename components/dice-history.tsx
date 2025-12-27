@@ -26,7 +26,7 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
           total: roll.total,
           timestamp: new Date(roll.timestamp),
         }))
-        setRolls(formattedRolls.slice().reverse())
+        setRolls(formattedRolls)
         
         formattedRolls.forEach((roll) => {
           storage.diceRolls.add(roomId, {
@@ -37,7 +37,7 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
       }
     } catch {
       const localRolls = storage.diceRolls.getByRoom(roomId)
-      setRolls(localRolls.slice().reverse())
+      setRolls(localRolls)
     }
   }
 
@@ -52,22 +52,25 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
   }
 
   return (
-    <div className="w-full bg-card rounded-lg border-2 border-border/60 shadow-lg p-3">
-      <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+    <div className="w-full bg-card rounded-lg border-2 border-border/60 shadow-lg p-3 relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-secondary/5 pointer-events-none dark:from-primary/10 dark:via-transparent dark:to-secondary/10" />
+      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent" style={{ scrollbarWidth: 'thin' }}>
         {rolls.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-4 px-8">Nenhuma rolagem ainda</p>
         ) : (
-          rolls.map((roll) => (
+          rolls.slice().reverse().map((roll, index) => (
             <div
               key={roll.id}
-              className="relative flex-shrink-0 w-20 h-20 border-2 border-border/60 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors flex items-center justify-center"
+              className="relative flex-shrink-0 w-20 h-20 border-2 border-border/60 rounded-lg bg-muted/30 hover:bg-muted/50 dark:bg-muted/40 dark:hover:bg-muted/60 transition-all duration-300 hover:scale-105 hover:shadow-lg hover:border-primary/40 dark:hover:border-primary/50 flex items-center justify-center group animate-in fade-in slide-in-from-right-4"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
-              <p className="text-2xl font-bold text-primary">{roll.total}</p>
-              <div className="absolute bottom-1 left-1">
-                <p className="text-[10px] font-mono text-muted-foreground leading-tight">{roll.diceType}</p>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 dark:from-primary/20 dark:to-secondary/20" />
+              <p className="text-2xl font-bold text-primary relative z-10 group-hover:scale-110 transition-transform duration-300 dark:text-primary">{roll.total}</p>
+              <div className="absolute bottom-1 left-1 z-10">
+                <p className="text-[10px] font-mono text-muted-foreground leading-tight dark:text-muted-foreground/80">{roll.diceType}</p>
               </div>
-              <div className="absolute bottom-1 right-1">
-                <p className="text-[10px] font-semibold text-muted-foreground truncate max-w-[60px] leading-tight">
+              <div className="absolute bottom-1 right-1 z-10">
+                <p className="text-[10px] font-semibold text-muted-foreground truncate max-w-[60px] leading-tight dark:text-muted-foreground/80">
                   {getFirstName(roll.playerName)}
                 </p>
               </div>

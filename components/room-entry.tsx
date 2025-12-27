@@ -86,25 +86,36 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
 
   if (mode === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <Card className="w-full max-w-md relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-white/5 animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
           <div className="absolute top-4 right-4 z-10">
             <ThemeToggle />
           </div>
           <CardHeader className="relative">
-            <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+            <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary via-primary/90 to-primary/70 dark:from-primary dark:via-primary/95 dark:to-primary/80 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md animate-in fade-in slide-in-from-top-4 duration-700">
               Gerenciador de Sessão D&D
             </CardTitle>
-            <CardDescription className="text-center text-base mt-2">
+            <CardDescription className="text-center text-base mt-2 dark:text-muted-foreground/80 animate-in fade-in slide-in-from-bottom-4 duration-700">
               Escolha como deseja entrar
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 relative">
-            <Button onClick={() => setMode("entry")} size="lg" className="w-full font-semibold">
+            <Button 
+              onClick={() => setMode("entry")} 
+              size="lg" 
+              className="w-full font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl"
+            >
               Entrar em uma Sala
             </Button>
-            <Button onClick={() => setMode("create")} variant="outline" size="lg" className="w-full font-semibold">
+            <Button 
+              onClick={() => setMode("create")} 
+              variant="outline" 
+              size="lg" 
+              className="w-full font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl hover:border-primary/50 dark:hover:border-primary/60"
+            >
               Criar Nova Sala
             </Button>
           </CardContent>
@@ -115,15 +126,16 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
 
   if (mode === "create") {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-        <Card className="w-full max-w-md relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50 animate-in fade-in zoom-in-95 duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
           <div className="absolute top-4 right-4 z-10">
             <ThemeToggle />
           </div>
           <CardHeader className="relative">
-            <CardTitle className="text-2xl font-bold">Criar Nova Sala</CardTitle>
-            <CardDescription>Configure sua sessão de D&D</CardDescription>
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent">Criar Nova Sala</CardTitle>
+            <CardDescription className="dark:text-muted-foreground/80">Configure sua sessão de D&D</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 relative">
             <div className="space-y-2">
@@ -139,10 +151,19 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
             </div>
             {error && <p className="text-sm text-destructive font-medium p-2 bg-destructive/10 rounded-md border border-destructive/20">{error}</p>}
             <div className="flex gap-2">
-              <Button onClick={() => setMode(null)} variant="outline" className="flex-1" disabled={loading}>
+              <Button 
+                onClick={() => setMode(null)} 
+                variant="outline" 
+                className="flex-1 hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg" 
+                disabled={loading}
+              >
                 Voltar
               </Button>
-              <Button onClick={handleCreateRoom} className="flex-1" disabled={loading}>
+              <Button 
+                onClick={handleCreateRoom} 
+                className="flex-1 hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl" 
+                disabled={loading}
+              >
                 {loading ? "Criando..." : "Criar Sala"}
               </Button>
             </div>
@@ -153,16 +174,17 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
-      <Card className="w-full max-w-md relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
-        <div className="absolute top-4 right-4 z-10">
-          <ThemeToggle />
-        </div>
-        <CardHeader className="relative">
-          <CardTitle className="text-2xl font-bold">Entrar em uma Sala</CardTitle>
-          <CardDescription>Entre como jogador ou mestre</CardDescription>
-        </CardHeader>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50 animate-in fade-in zoom-in-95 duration-500">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+          <div className="absolute top-4 right-4 z-10">
+            <ThemeToggle />
+          </div>
+          <CardHeader className="relative">
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent">Entrar em uma Sala</CardTitle>
+            <CardDescription className="dark:text-muted-foreground/80">Entre como jogador ou mestre</CardDescription>
+          </CardHeader>
         <CardContent className="flex flex-col gap-4 relative">
           <div className="space-y-2">
             <Label htmlFor="room-code" className="font-semibold">Código da Sala</Label>
@@ -186,7 +208,11 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
                 onChange={(e) => setPlayerName(e.target.value)}
               />
             </div>
-            <Button onClick={handleJoinRoom} className="w-full" disabled={loading}>
+            <Button 
+              onClick={handleJoinRoom} 
+              className="w-full hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl" 
+              disabled={loading}
+            >
               {loading ? "Entrando..." : "Entrar como Jogador"}
             </Button>
           </div>
@@ -203,14 +229,23 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
                 className="font-mono"
               />
             </div>
-            <Button onClick={handleJoinAsMaster} variant="outline" className="w-full" disabled={loading}>
+            <Button 
+              onClick={handleJoinAsMaster} 
+              variant="outline" 
+              className="w-full hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-lg dark:hover:shadow-xl hover:border-primary/50 dark:hover:border-primary/60" 
+              disabled={loading}
+            >
               {loading ? "Verificando..." : "Entrar como Mestre"}
             </Button>
           </div>
 
           {error && <p className="text-sm text-destructive font-medium p-2 bg-destructive/10 rounded-md border border-destructive/20">{error}</p>}
 
-          <Button onClick={() => setMode(null)} variant="ghost" className="w-full mt-2">
+          <Button 
+            onClick={() => setMode(null)} 
+            variant="ghost" 
+            className="w-full mt-2 hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-muted/50 dark:hover:bg-muted/70"
+          >
             Voltar
           </Button>
         </CardContent>

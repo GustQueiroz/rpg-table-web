@@ -107,11 +107,12 @@ export function CharacterImageUpload({
   return (
     <div className="flex items-center gap-3">
       <Avatar 
-        className="h-12 w-12 border-2 border-border cursor-pointer hover:opacity-80 transition-opacity"
+        className="h-12 w-12 border-2 border-border dark:border-border/60 cursor-pointer hover:opacity-80 dark:hover:opacity-90 transition-all duration-300 hover:scale-110 hover:shadow-lg dark:hover:shadow-xl hover:border-primary/50 dark:hover:border-primary/60 relative group"
         onClick={() => fileInputRef.current?.click()}
       >
-        <AvatarImage src={currentImage || undefined} alt="Avatar" />
-        <AvatarFallback className="bg-muted text-muted-foreground font-semibold">
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 dark:from-primary/30 dark:to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <AvatarImage src={currentImage || undefined} alt="Avatar" className="relative z-10" />
+        <AvatarFallback className="bg-muted dark:bg-muted/80 text-muted-foreground dark:text-muted-foreground/90 font-semibold relative z-10">
           {currentImage ? "" : "?"}
         </AvatarFallback>
       </Avatar>
@@ -121,7 +122,7 @@ export function CharacterImageUpload({
           size="sm"
           onClick={() => fileInputRef.current?.click()}
           disabled={isUploading}
-          className="font-semibold"
+          className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/60"
         >
           <Camera className="h-4 w-4 mr-2" />
           {currentImage ? "Alterar" : "Adicionar"}
@@ -132,7 +133,7 @@ export function CharacterImageUpload({
             size="sm"
             onClick={handleRemoveImage}
             disabled={isUploading}
-            className="font-semibold"
+            className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-destructive/50 dark:hover:border-destructive/60 hover:bg-destructive/10 dark:hover:bg-destructive/20"
           >
             <X className="h-4 w-4 mr-2" />
             Remover

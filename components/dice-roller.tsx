@@ -96,27 +96,30 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+      <CardHeader className="relative">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
-            <Dice1 className="h-5 w-5" />
+            <Dice1 className="h-5 w-5 animate-pulse dark:animate-pulse" />
             Rolagem de Dados
           </CardTitle>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setIsVisible(false)}
-            className="font-semibold"
+            className="font-semibold hover:bg-muted/50 dark:hover:bg-muted/70 transition-colors"
           >
             <ChevronUp className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 relative">
         {lastRoll !== null && (
-          <div className="p-8 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground rounded-lg text-center border-2 border-primary/30 shadow-lg">
-            <p className="text-6xl font-bold">{lastRoll}</p>
+          <div className="p-8 bg-gradient-to-br from-primary to-primary/80 dark:from-primary/90 dark:to-primary/70 text-primary-foreground rounded-lg text-center border-2 border-primary/30 dark:border-primary/40 shadow-lg animate-in zoom-in-95 duration-300 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute inset-0 animate-pulse bg-primary/20 pointer-events-none" />
+            <p className="text-6xl font-bold relative z-10 animate-in zoom-in-95 duration-500 drop-shadow-lg dark:drop-shadow-xl">{lastRoll}</p>
           </div>
         )}
 
@@ -132,33 +135,75 @@ export function DiceRoller({ roomId, playerId, playerName }: DiceRollerProps) {
         </div>
 
         <div className="grid grid-cols-2 gap-2">
-          <Button onClick={() => rollDice(20)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(20)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d20
           </Button>
-          <Button onClick={() => rollDice(12)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(12)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d12
           </Button>
-          <Button onClick={() => rollDice(10)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(10)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d10
           </Button>
-          <Button onClick={() => rollDice(8)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(8)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d8
           </Button>
-          <Button onClick={() => rollDice(6)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(6)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d6
           </Button>
-          <Button onClick={() => rollDice(4)} variant="outline" className="font-bold text-lg">
+          <Button 
+            onClick={() => rollDice(4)} 
+            variant="outline" 
+            className="font-bold text-lg hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+            disabled={isRolling}
+          >
             d4
           </Button>
         </div>
 
-        <div className="pt-4 border-t-2 border-border/40">
-          <p className="text-sm font-semibold text-muted-foreground mb-3">Rolagens Múltiplas</p>
+        <div className="pt-4 border-t-2 border-border/40 dark:border-border/50">
+          <p className="text-sm font-semibold text-muted-foreground mb-3 dark:text-muted-foreground/90">Rolagens Múltiplas</p>
           <div className="grid grid-cols-2 gap-2">
-            <Button onClick={() => rollDice(6, 2)} variant="outline" size="sm" className="font-bold">
+            <Button 
+              onClick={() => rollDice(6, 2)} 
+              variant="outline" 
+              size="sm" 
+              className="font-bold hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+              disabled={isRolling}
+            >
               2d6
             </Button>
-            <Button onClick={() => rollDice(8, 2)} variant="outline" size="sm" className="font-bold">
+            <Button 
+              onClick={() => rollDice(8, 2)} 
+              variant="outline" 
+              size="sm" 
+              className="font-bold hover:scale-105 active:scale-95 transition-all duration-200 hover:bg-primary/10 dark:hover:bg-primary/20 hover:border-primary/50 dark:hover:border-primary/60 hover:shadow-md dark:hover:shadow-lg"
+              disabled={isRolling}
+            >
               2d8
             </Button>
           </div>

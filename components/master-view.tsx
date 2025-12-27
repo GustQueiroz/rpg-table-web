@@ -200,16 +200,18 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
   return (
     <div className="min-h-screen p-4 bg-background">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between p-6 bg-card rounded-lg border-2 border-border/60 shadow-lg">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+        <div className="flex items-center justify-between p-6 bg-card rounded-lg border-2 border-border/60 dark:border-border/50 shadow-lg dark:shadow-2xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-white/5 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
+          <div className="relative z-10">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 dark:from-primary dark:via-primary/90 dark:to-primary/70 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md animate-in fade-in slide-in-from-top-2 duration-500">
               Painel do Mestre
             </h1>
-            <p className="text-muted-foreground mt-1">{room?.name}</p>
+            <p className="text-muted-foreground dark:text-muted-foreground/80 mt-1 animate-in fade-in slide-in-from-left-4 duration-700">{room?.name}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 relative z-10">
             <div 
-              className="text-right p-4 bg-muted/50 rounded-lg border border-border/40 cursor-pointer hover:bg-muted/70 transition-colors"
+              className="text-right p-4 bg-muted/50 dark:bg-muted/60 rounded-lg border border-border/40 dark:border-border/50 cursor-pointer hover:bg-muted/70 dark:hover:bg-muted/80 transition-all duration-300 hover:scale-105 hover:shadow-lg dark:hover:shadow-xl hover:border-primary/40 dark:hover:border-primary/50 group/roomcode relative overflow-hidden"
               onClick={async () => {
                 try {
                   await navigator.clipboard.writeText(roomId)
@@ -226,8 +228,9 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                 }
               }}
             >
-              <p className="text-sm text-muted-foreground font-semibold mb-1">Código da Sala</p>
-              <p className="text-2xl font-mono font-bold tracking-wider">{roomId}</p>
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 dark:from-primary/20 dark:to-secondary/20 opacity-0 group-hover/roomcode:opacity-100 transition-opacity duration-300" />
+              <p className="text-sm text-muted-foreground dark:text-muted-foreground/80 font-semibold mb-1 relative z-10">Código da Sala</p>
+              <p className="text-2xl font-mono font-bold tracking-wider relative z-10 bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent group-hover/roomcode:from-primary group-hover/roomcode:to-primary/80 transition-all duration-300">{roomId}</p>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
@@ -237,14 +240,19 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                     onClick={handleRefresh} 
                     variant="outline" 
                     size="sm" 
-                    className="font-semibold"
+                    className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/60"
                     disabled={isRefreshing}
                   >
                     {isRefreshing ? "Atualizando..." : "Atualizar"}
                   </Button>
                 )}
                 {onLeave && (
-                  <Button onClick={onLeave} variant="destructive" size="sm" className="font-semibold">
+                  <Button 
+                    onClick={onLeave} 
+                    variant="destructive" 
+                    size="sm" 
+                    className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg"
+                  >
                     Sair da Sala
                   </Button>
                 )}
@@ -273,10 +281,11 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             />
 
             {selectedPlayerData?.character && (
-              <Card>
-                <CardHeader>
+              <Card className="relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+                <CardHeader className="relative">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl font-bold">Controle: {selectedPlayerData.character.name}</CardTitle>
+                    <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent">Controle: {selectedPlayerData.character.name}</CardTitle>
                     <CharacterImageUpload
                       characterId={selectedPlayerData.character.id}
                       currentImage={selectedPlayerData.character.image}
@@ -291,31 +300,54 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
-                    <p className="text-base font-bold">Pontos de Vida</p>
+                  <div className="space-y-3 p-4 bg-muted/30 dark:bg-muted/40 rounded-lg border border-border/40 dark:border-border/50 relative overflow-hidden group/section">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:to-secondary/10 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" />
+                    <p className="text-base font-bold relative z-10">Pontos de Vida</p>
                     <div className="flex items-center gap-2">
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -5)} variant="outline" size="sm" className="font-bold">
+                      <Button 
+                        onClick={() => updatePlayerHp(selectedPlayerData.id, -5)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="font-bold hover:scale-110 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-destructive/50 dark:hover:border-destructive/60 hover:bg-destructive/10 dark:hover:bg-destructive/20"
+                      >
                         -5
                       </Button>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, -1)} variant="outline" size="sm" className="font-bold">
+                      <Button 
+                        onClick={() => updatePlayerHp(selectedPlayerData.id, -1)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="font-bold hover:scale-110 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-destructive/50 dark:hover:border-destructive/60 hover:bg-destructive/10 dark:hover:bg-destructive/20"
+                      >
                         -1
                       </Button>
-                      <div className="flex-1 text-center p-4 bg-background rounded-lg border-2 border-primary/20">
-                        <p className="text-3xl font-bold">
+                      <div className="flex-1 text-center p-4 bg-background dark:bg-background/80 rounded-lg border-2 border-primary/20 dark:border-primary/30 relative overflow-hidden group/hp">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 dark:from-primary/20 dark:to-secondary/20 opacity-0 group-hover/hp:opacity-100 transition-opacity duration-300" />
+                        <p className="text-3xl font-bold relative z-10 bg-gradient-to-r from-primary to-primary/80 dark:from-primary dark:to-primary/90 bg-clip-text text-transparent">
                           {selectedPlayerData.character.currentHp}/{selectedPlayerData.character.maxHp}
                         </p>
                       </div>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 1)} variant="outline" size="sm" className="font-bold">
+                      <Button 
+                        onClick={() => updatePlayerHp(selectedPlayerData.id, 1)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="font-bold hover:scale-110 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/60 hover:bg-primary/10 dark:hover:bg-primary/20"
+                      >
                         +1
                       </Button>
-                      <Button onClick={() => updatePlayerHp(selectedPlayerData.id, 5)} variant="outline" size="sm" className="font-bold">
+                      <Button 
+                        onClick={() => updatePlayerHp(selectedPlayerData.id, 5)} 
+                        variant="outline" 
+                        size="sm" 
+                        className="font-bold hover:scale-110 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/60 hover:bg-primary/10 dark:hover:bg-primary/20"
+                      >
                         +5
                       </Button>
                     </div>
                   </div>
 
-                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
-                    <p className="text-base font-bold">Atributos</p>
+                  <div className="space-y-3 p-4 bg-muted/30 dark:bg-muted/40 rounded-lg border border-border/40 dark:border-border/50 relative overflow-hidden group/section">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:to-secondary/10 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" />
+                    <p className="text-base font-bold relative z-10">Atributos</p>
                     <div className="grid grid-cols-6 gap-3">
                       {[
                         { name: "FOR", value: selectedPlayerData.character.attributes.strength },
@@ -325,17 +357,19 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                         { name: "SAB", value: selectedPlayerData.character.attributes.wisdom },
                         { name: "CAR", value: selectedPlayerData.character.attributes.charisma },
                       ].map((attr) => (
-                        <div key={attr.name} className="text-center p-3 border-2 border-border/60 rounded-lg bg-background hover:border-primary/40 transition-colors">
-                          <p className="text-xs font-bold text-muted-foreground mb-1">{attr.name}</p>
-                          <p className="text-xl font-bold">{attr.value}</p>
-                          <p className="text-sm font-semibold text-primary mt-1">{calculateModifier(attr.value)}</p>
+                        <div key={attr.name} className="text-center p-3 border-2 border-border/60 dark:border-border/50 rounded-lg bg-background dark:bg-background/80 hover:border-primary/40 dark:hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-md dark:hover:shadow-lg group/attr relative overflow-hidden">
+                          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/10 dark:from-primary/20 dark:to-secondary/20 opacity-0 group-hover/attr:opacity-100 transition-opacity duration-300" />
+                          <p className="text-xs font-bold text-muted-foreground dark:text-muted-foreground/80 mb-1 relative z-10">{attr.name}</p>
+                          <p className="text-xl font-bold relative z-10">{attr.value}</p>
+                          <p className="text-sm font-semibold text-primary dark:text-primary/90 mt-1 relative z-10">{calculateModifier(attr.value)}</p>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border/40">
-                    <p className="text-base font-bold">Condições</p>
+                  <div className="space-y-3 p-4 bg-muted/30 dark:bg-muted/40 rounded-lg border border-border/40 dark:border-border/50 relative overflow-hidden group/section">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:to-secondary/10 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300" />
+                    <p className="text-base font-bold relative z-10">Condições</p>
                     <div className="flex flex-wrap gap-2">
                       {selectedPlayerData.character.conditions.length === 0 ? (
                         <p className="text-sm text-muted-foreground">Nenhuma condição</p>
@@ -344,10 +378,11 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                           <Badge
                             key={idx}
                             variant="secondary"
-                            className="cursor-pointer font-semibold hover:bg-destructive/20 transition-colors"
+                            className="cursor-pointer font-semibold hover:bg-destructive/20 dark:hover:bg-destructive/30 transition-all duration-300 hover:scale-110 active:scale-95 hover:shadow-md dark:hover:shadow-lg hover:border-destructive/40 dark:hover:border-destructive/50 relative overflow-hidden group/badge"
                             onClick={() => removeConditionFromPlayer(selectedPlayerData.id, idx)}
                           >
-                            {condition} ×
+                            <div className="absolute inset-0 bg-gradient-to-br from-destructive/20 via-transparent to-destructive/20 dark:from-destructive/30 dark:to-destructive/30 opacity-0 group-hover/badge:opacity-100 transition-opacity duration-300" />
+                            <span className="relative z-10">{condition} ×</span>
                           </Badge>
                         ))
                       )}
@@ -411,7 +446,13 @@ function QuickConditions({ onAdd }: { onAdd: (condition: string) => void }) {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         {commonConditions.map((condition) => (
-          <Button key={condition} variant="outline" size="sm" onClick={() => onAdd(condition)} className="font-semibold">
+          <Button 
+            key={condition} 
+            variant="outline" 
+            size="sm" 
+            onClick={() => onAdd(condition)} 
+            className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 hover:shadow-md dark:hover:shadow-lg hover:border-primary/50 dark:hover:border-primary/60"
+          >
             {condition}
           </Button>
         ))}

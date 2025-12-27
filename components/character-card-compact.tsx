@@ -15,8 +15,8 @@ export function CharacterCardCompact({ player }: CharacterCardCompactProps) {
   }
 
   return (
-    <div className="relative border-2 border-border/60 rounded-lg overflow-hidden bg-card shadow-md hover:shadow-lg transition-all">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+    <div className="relative border-2 border-border/60 dark:border-border/50 rounded-lg overflow-hidden bg-card shadow-md hover:shadow-lg dark:shadow-lg dark:hover:shadow-xl transition-all duration-300 group hover:scale-105 active:scale-95">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none group-hover:from-primary/10 group-hover:to-secondary/10 dark:group-hover:from-primary/15 dark:group-hover:to-secondary/15 transition-all duration-300" />
       
       <div className="relative p-1.5">
         <div className="text-center border-b border-border/40 pb-1 mb-1.5">
@@ -25,9 +25,10 @@ export function CharacterCardCompact({ player }: CharacterCardCompactProps) {
         </div>
 
         <div className="flex justify-center mb-1.5">
-          <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-sm">
-            <AvatarImage src={character.image || undefined} alt={character.name} />
-            <AvatarFallback className="bg-muted text-muted-foreground font-bold text-xs">
+          <Avatar className="h-10 w-10 border-2 border-primary/20 dark:border-primary/30 shadow-sm group-hover:scale-110 group-hover:border-primary/40 dark:group-hover:border-primary/50 transition-all duration-300">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 via-transparent to-secondary/20 dark:from-primary/30 dark:to-secondary/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <AvatarImage src={character.image || undefined} alt={character.name} className="relative z-10" />
+            <AvatarFallback className="bg-muted dark:bg-muted/90 text-muted-foreground dark:text-muted-foreground/90 font-bold text-xs relative z-10">
               {character.name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>

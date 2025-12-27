@@ -202,8 +202,9 @@ export function Chat({ roomId, playerName, playerImage, showPlayersToggle = fals
   }
 
   return (
-    <Card className="flex flex-col h-full max-h-[600px]">
-      <CardHeader className="flex-shrink-0">
+    <Card className="flex flex-col h-full max-h-[600px] relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
+      <CardHeader className="flex-shrink-0 relative">
         <div className="flex items-center justify-between">
           <CardTitle className="text-2xl font-bold flex items-center gap-2">
             {viewMode === "chat" ? (
@@ -254,20 +255,24 @@ export function Chat({ roomId, playerName, playerImage, showPlayersToggle = fals
               {messages.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-8">Nenhuma mensagem ainda</p>
               ) : (
-                messages.map((msg) => (
-                  <div key={msg.id} className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8 border-2 border-border flex-shrink-0">
+                messages.map((msg, index) => (
+                  <div 
+                    key={msg.id} 
+                    className="flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    <Avatar className="h-8 w-8 border-2 border-border dark:border-border/60 flex-shrink-0 hover:scale-110 transition-transform duration-200">
                       <AvatarImage src={msg.playerImage || undefined} alt={msg.playerName} />
-                      <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-xs">
+                      <AvatarFallback className="bg-muted dark:bg-muted/80 text-muted-foreground dark:text-muted-foreground/90 font-semibold text-xs">
                         {msg.playerName.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2 mb-1">
-                        <p className="font-bold text-sm">{msg.playerName}</p>
-                        <p className="text-xs text-muted-foreground">{formatTime(msg.timestamp)}</p>
+                        <p className="font-bold text-sm dark:text-foreground/90">{msg.playerName}</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/70">{formatTime(msg.timestamp)}</p>
                       </div>
-                      <p className="text-sm break-words">{msg.message}</p>
+                      <p className="text-sm break-words dark:text-foreground/80">{msg.message}</p>
                     </div>
                   </div>
                 ))
@@ -282,7 +287,11 @@ export function Chat({ roomId, playerName, playerImage, showPlayersToggle = fals
                 disabled={isSending}
                 className="flex-1"
               />
-              <Button type="submit" disabled={isSending || !newMessage.trim()} className="font-semibold">
+              <Button 
+                type="submit" 
+                disabled={isSending || !newMessage.trim()} 
+                className="font-semibold hover:scale-105 active:scale-95 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 Enviar
               </Button>
             </form>

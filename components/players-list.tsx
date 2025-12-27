@@ -97,16 +97,16 @@ export function PlayersList({ roomId, onPlayerSelect }: PlayersListProps) {
             {players.map((player) => (
               <div
                 key={player.id}
-                className={`p-4 border-2 border-border/60 rounded-lg hover:bg-accent/50 transition-colors ${
-                  onPlayerSelect ? "cursor-pointer" : ""
+                className={`p-4 border-2 border-border/60 dark:border-border/50 rounded-lg hover:bg-accent/50 dark:hover:bg-accent/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-md dark:hover:shadow-lg group ${
+                  onPlayerSelect ? "cursor-pointer active:scale-[0.98]" : ""
                 }`}
                 onClick={() => onPlayerSelect?.(player)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3 flex-1">
-                    <Avatar className="h-10 w-10 border-2 border-border flex-shrink-0">
+                    <Avatar className="h-10 w-10 border-2 border-border dark:border-border/60 flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                       <AvatarImage src={player.character?.image || undefined} alt={player.name} />
-                      <AvatarFallback className="bg-muted text-muted-foreground font-semibold text-sm">
+                      <AvatarFallback className="bg-muted dark:bg-muted/80 text-muted-foreground dark:text-muted-foreground/90 font-semibold text-sm">
                         {player.name.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
@@ -121,14 +121,14 @@ export function PlayersList({ roomId, onPlayerSelect }: PlayersListProps) {
                   </div>
                   {player.character && (
                     <div className="flex items-center gap-6">
-                      <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[60px]">
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">PV</p>
+                      <div className="text-center p-2 bg-muted/50 dark:bg-muted/60 rounded border border-border/40 dark:border-border/50 min-w-[60px] group-hover:bg-muted/60 dark:group-hover:bg-muted/70 transition-colors duration-300">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/80 font-semibold mb-1">PV</p>
                         <p className="font-bold text-lg">
                           {player.character.currentHp}/{player.character.maxHp}
                         </p>
                       </div>
-                      <div className="text-center p-2 bg-muted/50 rounded border border-border/40 min-w-[50px]">
-                        <p className="text-xs text-muted-foreground font-semibold mb-1">CA</p>
+                      <div className="text-center p-2 bg-muted/50 dark:bg-muted/60 rounded border border-border/40 dark:border-border/50 min-w-[50px] group-hover:bg-muted/60 dark:group-hover:bg-muted/70 transition-colors duration-300">
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground/80 font-semibold mb-1">CA</p>
                         <p className="font-bold text-lg">{player.character.armorClass}</p>
                       </div>
                     </div>
