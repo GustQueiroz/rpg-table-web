@@ -32,7 +32,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
   const [players, setPlayers] = useState<Player[]>([])
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [roomCreatedAt, setRoomCreatedAt] = useState<Date | null>(null)
 
   const fetchPlayersFromBackend = async () => {
     try {
@@ -86,18 +85,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     const updateData = async () => {
       const currentRoom = storage.rooms.getById(roomId)
       setRoom(currentRoom)
-      
-      try {
-        const roomData = await api.rooms.get(roomId)
-        if (roomData && roomData.createdAt) {
-          setRoomCreatedAt(new Date(roomData.createdAt))
-        }
-      } catch {
-        if (currentRoom?.createdAt) {
-          setRoomCreatedAt(new Date(currentRoom.createdAt))
-        }
-      }
-      
       await fetchPlayersFromBackend()
     }
 
@@ -270,7 +257,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
                   </Button>
                 )}
               </div>
-              {roomCreatedAt && <SessionTimer startTime={roomCreatedAt} />}
             </div>
           </div>
         </div>

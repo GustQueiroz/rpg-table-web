@@ -14,7 +14,6 @@ import { Chat } from "@/components/chat"
 import { PlayersList } from "@/components/players-list"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { CharacterImageUpload } from "@/components/character-image-upload"
-import { SessionTimer } from "@/components/session-timer"
 import type { Character } from "@/lib/types"
 
 interface PlayerViewProps {
@@ -31,7 +30,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
   const [tempHp, setTempHp] = useState("")
   const [newCondition, setNewCondition] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
-  const [roomCreatedAt, setRoomCreatedAt] = useState<Date | null>(null)
 
   useEffect(() => {
     const updateCharacter = async () => {
@@ -71,10 +69,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           }
         }
 
-        const roomData = await api.rooms.get(roomId)
-        if (roomData && roomData.createdAt) {
-          setRoomCreatedAt(new Date(roomData.createdAt))
-        }
       } catch {
       }
     }
@@ -269,7 +263,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
                   </Button>
                 )}
               </div>
-              {roomCreatedAt && <SessionTimer startTime={roomCreatedAt} />}
             </div>
           </div>
         </div>
