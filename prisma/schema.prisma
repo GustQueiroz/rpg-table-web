@@ -46,7 +46,7 @@ model Character {
   room        Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   @@map("characters")
-}
+}//teste
 
 model DiceRoll {
   id          String   @id @default(cuid())

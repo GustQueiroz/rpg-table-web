@@ -16,7 +16,7 @@ export default function PlayerPage() {
       router.push("/")
       return
     }
-
+//teste
     if (!character) {
       router.push("/character-setup")
       return
