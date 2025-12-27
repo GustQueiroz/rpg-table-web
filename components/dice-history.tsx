@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { storage } from "@/lib/storage"
 import { api } from "@/lib/api.client"
 import type { DiceRoll } from "@/lib/types"
@@ -27,7 +26,7 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
           total: roll.total,
           timestamp: new Date(roll.timestamp),
         }))
-        setRolls(formattedRolls)
+        setRolls(formattedRolls.slice().reverse())
         
         formattedRolls.forEach((roll) => {
           storage.diceRolls.add(roomId, {
@@ -38,7 +37,7 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
       }
     } catch {
       const localRolls = storage.diceRolls.getByRoom(roomId)
-      setRolls(localRolls)
+      setRolls(localRolls.slice().reverse())
     }
   }
 
@@ -48,41 +47,34 @@ export function DiceHistory({ roomId }: DiceHistoryProps) {
     return () => clearInterval(interval)
   }, [roomId])
 
-  const formatTime = (timestamp: Date | number) => {
-    const date = timestamp instanceof Date ? timestamp : new Date(timestamp)
-    return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+  const getFirstName = (name: string) => {
+    return name.split(" ")[0]
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold">Histórico de Rolagens</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3 max-h-96 overflow-y-auto">
-          {rolls.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma rolagem ainda</p>
-          ) : (
-            rolls.map((roll) => (
-              <div key={roll.id} className="border-2 border-border/40 rounded-lg p-3 bg-muted/20 hover:bg-muted/40 transition-colors">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm">{roll.playerName}</p>
-                    <p className="text-xs text-muted-foreground mt-1 font-mono">
-                      {roll.diceType || roll.type}
-                      {roll.modifier !== 0 && ` ${roll.modifier > 0 ? "+" : ""}${roll.modifier}`}
-                    </p>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <p className="text-2xl font-bold text-primary">{roll.result}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{formatTime(roll.timestamp)}</p>
-                  </div>
-                </div>
+    <div className="w-full bg-card rounded-lg border-2 border-border/60 shadow-lg p-3">
+      <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'thin' }}>
+        {rolls.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-4 px-8">Nenhuma rolagem ainda</p>
+        ) : (
+          rolls.map((roll) => (
+            <div
+              key={roll.id}
+              className="relative flex-shrink-0 w-20 h-20 border-2 border-border/60 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors flex items-center justify-center"
+            >
+              <p className="text-2xl font-bold text-primary">{roll.total}</p>
+              <div className="absolute bottom-1 left-1">
+                <p className="text-[10px] font-mono text-muted-foreground leading-tight">{roll.diceType}</p>
               </div>
-            ))
-          )}
-        </div>
-      </CardContent>
-    </Card>
+              <div className="absolute bottom-1 right-1">
+                <p className="text-[10px] font-semibold text-muted-foreground truncate max-w-[60px] leading-tight">
+                  {getFirstName(roll.playerName)}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
   )
 }

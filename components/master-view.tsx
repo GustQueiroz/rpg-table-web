@@ -253,6 +253,8 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           </div>
         </div>
 
+        <DiceHistory roomId={roomId} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
             <PlayersList 
@@ -377,7 +379,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
               playerId={masterId} 
               playerName={player?.name || "Mestre"} 
             />
-            <DiceHistory roomId={roomId} />
           </div>
         </div>
       </div>

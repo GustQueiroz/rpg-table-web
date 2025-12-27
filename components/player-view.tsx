@@ -263,6 +263,8 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           </div>
         </div>
 
+        <DiceHistory roomId={roomId} />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
             <Card>
@@ -398,7 +400,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
               playerImage={character.image || null}
             />
             <DiceRoller roomId={roomId} playerId={playerId} playerName={character.name} />
-            <DiceHistory roomId={roomId} />
           </div>
         </div>
       </div>
