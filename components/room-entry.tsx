@@ -90,15 +90,14 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
         <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-white/5 animate-[shimmer_3s_ease-in-out_infinite] pointer-events-none" />
           <div className="absolute top-4 right-4 z-10">
             <ThemeToggle />
           </div>
           <CardHeader className="relative">
-            <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary via-primary/90 to-primary/70 dark:from-primary dark:via-primary/95 dark:to-primary/80 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md animate-in fade-in slide-in-from-top-4 duration-700">
+            <CardTitle className="text-3xl font-bold tracking-tight text-center bg-gradient-to-r from-primary via-primary/90 to-primary/70 dark:from-primary dark:via-primary/95 dark:to-primary/80 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md">
               Gerenciador de Sessão D&D
             </CardTitle>
-            <CardDescription className="text-center text-base mt-2 dark:text-muted-foreground/80 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <CardDescription className="text-center text-base mt-2 dark:text-muted-foreground/80">
               Escolha como deseja entrar
             </CardDescription>
           </CardHeader>
@@ -128,7 +127,7 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
-        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50 animate-in fade-in zoom-in-95 duration-500">
+        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
           <div className="absolute top-4 right-4 z-10">
             <ThemeToggle />
@@ -176,7 +175,7 @@ export function RoomEntry({ onEnterRoom }: RoomEntryProps) {
   return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-background relative">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
-        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50 animate-in fade-in zoom-in-95 duration-500">
+        <Card className="w-full max-w-md relative overflow-hidden shadow-2xl dark:shadow-[0_0_40px_rgba(0,0,0,0.5)] border-2 border-border/60 dark:border-border/50">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
           <div className="absolute top-4 right-4 z-10">
             <ThemeToggle />

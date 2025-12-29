@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { GameProvider } from '@/lib/contexts/game-context'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/toaster'
+import { GlobalHeader } from '@/components/global-header'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -41,6 +42,7 @@ export default function RootLayout({
       <body className={`font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <GameProvider>
+            <GlobalHeader />
             {children}
           </GameProvider>
         </ThemeProvider>

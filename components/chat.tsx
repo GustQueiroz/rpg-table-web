@@ -107,15 +107,11 @@ export function Chat({ roomId, playerName, playerImage, showPlayersToggle = fals
 
   useEffect(() => {
     fetchMessages()
-    const interval = setInterval(fetchMessages, 1000)
-    return () => clearInterval(interval)
   }, [roomId])
 
   useEffect(() => {
     if (showPlayersToggle && viewMode === "players") {
       fetchPlayers()
-      const interval = setInterval(fetchPlayers, 1000)
-      return () => clearInterval(interval)
     }
   }, [roomId, viewMode, showPlayersToggle])
 
@@ -258,8 +254,7 @@ export function Chat({ roomId, playerName, playerImage, showPlayersToggle = fals
                 messages.map((msg, index) => (
                   <div 
                     key={msg.id} 
-                    className="flex items-start gap-3 animate-in fade-in slide-in-from-bottom-2 duration-300"
-                    style={{ animationDelay: `${index * 50}ms` }}
+                    className="flex items-start gap-3"
                   >
                     <Avatar className="h-8 w-8 border-2 border-border dark:border-border/60 flex-shrink-0 hover:scale-110 transition-transform duration-200">
                       <AvatarImage src={msg.playerImage || undefined} alt={msg.playerName} />

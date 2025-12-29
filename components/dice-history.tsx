@@ -49,8 +49,6 @@ export function DiceHistory({ roomId, playerName, playerId, onQuickRoll }: DiceH
 
   useEffect(() => {
     fetchRolls()
-    const interval = setInterval(fetchRolls, 1000)
-    return () => clearInterval(interval)
   }, [roomId])
 
   const getFirstName = (name: string) => {
@@ -148,7 +146,6 @@ export function DiceHistory({ roomId, playerName, playerId, onQuickRoll }: DiceH
                 <div
                   key={roll.id}
                   className={`relative flex-shrink-0 transition-all duration-500 group ${shapeClasses[shape as keyof typeof shapeClasses] || "w-20 h-20 rounded-lg"}`}
-                  style={{ animationDelay: `${index * 50}ms` }}
                   onMouseEnter={() => setHoveredRoll(roll.id)}
                   onMouseLeave={() => setHoveredRoll(null)}
                 >

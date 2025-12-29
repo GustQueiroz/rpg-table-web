@@ -68,8 +68,6 @@ export function PlayersList({ roomId, onPlayerSelect }: PlayersListProps) {
 
   useEffect(() => {
     fetchPlayers()
-    const interval = setInterval(fetchPlayers, 1000)
-    return () => clearInterval(interval)
   }, [roomId])
 
   return (

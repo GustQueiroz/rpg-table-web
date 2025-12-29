@@ -13,17 +13,17 @@ export default function PlayerPage() {
 
   useEffect(() => {
     if (!playerId || isMaster) {
-      router.push("/")
+      router.push("/rooms")
       return
     }
-//teste
+
     if (!character) {
       router.push("/character-setup")
       return
     }
 
     if (roomId !== params.roomId) {
-      router.push("/")
+      router.push("/rooms")
       return
     }
   }, [playerId, isMaster, character, roomId, params.roomId, router])

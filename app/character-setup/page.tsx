@@ -17,7 +17,7 @@ export default function CharacterSetupPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   if (!roomId || !playerId) {
-    router.push("/")
+    router.push("/rooms")
     return null
   }
 

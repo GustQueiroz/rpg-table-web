@@ -13,12 +13,12 @@ export default function MasterPage() {
 
   useEffect(() => {
     if (!playerId || !isMaster) {
-      router.push("/")
+      router.push("/rooms")
       return
     }
 
     if (roomId !== params.roomId) {
-      router.push("/")
+      router.push("/rooms")
       return
     }
   }, [playerId, isMaster, roomId, params.roomId, router])

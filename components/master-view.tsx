@@ -89,9 +89,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
     }
 
     updateData()
-    const interval = setInterval(updateData, 1000)
-
-    return () => clearInterval(interval)
   }, [roomId])
 
   const selectedPlayerData = players.find((p) => p.id === selectedPlayer)
@@ -112,7 +109,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           await api.characters.update(player.character.id, {
             currentHp: newHp,
           })
-          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -135,7 +131,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           await api.characters.update(player.character.id, {
             conditions: newConditions,
           })
-          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -161,7 +156,6 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           await api.characters.update(player.character.id, {
             conditions: newConditions,
           })
-          setTimeout(() => fetchPlayersFromBackend(), 500)
         } catch {
         }
       }
@@ -204,10 +198,10 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-white/5 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
           <div className="relative z-10">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 dark:from-primary dark:via-primary/90 dark:to-primary/70 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md animate-in fade-in slide-in-from-top-2 duration-500">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 dark:from-primary dark:via-primary/90 dark:to-primary/70 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md">
               Painel do Mestre
             </h1>
-            <p className="text-muted-foreground dark:text-muted-foreground/80 mt-1 animate-in fade-in slide-in-from-left-4 duration-700">{room?.name}</p>
+            <p className="text-muted-foreground dark:text-muted-foreground/80 mt-1">{room?.name}</p>
           </div>
           <div className="flex items-center gap-4 relative z-10">
             <div 
@@ -303,7 +297,7 @@ export function MasterView({ roomId, masterId, onLeave, onRefresh }: MasterViewP
             />
 
             {selectedPlayerData?.character && (
-              <Card className="relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <Card className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
                 <CardHeader className="relative">
                   <div className="flex items-center justify-between">

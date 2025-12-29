@@ -75,8 +75,6 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
 
     if (character.id) {
       updateCharacter()
-      const interval = setInterval(updateCharacter, 1000)
-      return () => clearInterval(interval)
     }
   }, [roomId, playerId])
 
@@ -213,10 +211,10 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent dark:via-white/5 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 pointer-events-none" />
           <div className="relative z-10">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 dark:from-primary dark:via-primary/90 dark:to-primary/70 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md animate-in fade-in slide-in-from-top-2 duration-500">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 dark:from-primary dark:via-primary/90 dark:to-primary/70 bg-clip-text text-transparent drop-shadow-sm dark:drop-shadow-md">
               {character.name}
             </h1>
-            <p className="text-muted-foreground dark:text-muted-foreground/80 mt-1 text-lg animate-in fade-in slide-in-from-left-4 duration-700">
+            <p className="text-muted-foreground dark:text-muted-foreground/80 mt-1 text-lg">
               {character.race} {character.class} - Nível {character.level}
             </p>
           </div>
@@ -293,7 +291,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 space-y-4">
-            <Card className="relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
               <CardHeader className="relative">
                 <div className="flex items-center justify-between">
@@ -362,7 +360,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
               <CardHeader className="relative">
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent">Atributos</CardTitle>
@@ -388,7 +386,7 @@ export function PlayerView({ roomId, playerId, character: initialCharacter, onLe
               </CardContent>
             </Card>
 
-            <Card className="relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <Card className="relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 dark:from-primary/10 dark:via-transparent dark:to-secondary/10 pointer-events-none" />
               <CardHeader className="relative">
                 <CardTitle className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 dark:from-foreground dark:to-foreground/80 bg-clip-text text-transparent">Condições</CardTitle>
